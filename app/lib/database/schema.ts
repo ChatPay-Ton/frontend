@@ -110,29 +110,3 @@ export const createUpdateTriggers = [
      UPDATE contracted_services SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
    END;`,
 ];
-
-// Função para inicializar todas as tabelas
-export const initializeDatabase = async (client: any) => {
-  try {
-    // Criar tabelas
-    await client.execute(createServiceProvidersTable);
-    await client.execute(createClientsTable);
-    await client.execute(createServicesTable);
-    await client.execute(createContractedServicesTable);
-
-    // Criar índices
-    for (const indexQuery of createIndexes) {
-      await client.execute(indexQuery);
-    }
-
-    // Criar triggers
-    for (const triggerQuery of createUpdateTriggers) {
-      await client.execute(triggerQuery);
-    }
-
-    console.log('Database initialized successfully');
-  } catch (error) {
-    console.error('Error initializing database:', error);
-    throw error;
-  }
-}; 

@@ -1,13 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
+import { useTonConnectUI, useTonWallet, Wallet } from '@tonconnect/ui-react';
 
 interface TonAuthState {
   isConnected: boolean;
   isLoading: boolean;
   address: string | null;
-  wallet: any;
+  wallet: Wallet | null;
   error: string | null;
 }
 

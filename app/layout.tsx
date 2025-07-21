@@ -28,14 +28,6 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={inter.variable}>
       <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://api.fonts.coollabs.io/css2?family=HK+Grotesk:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
         <meta name="telegram-mini-app" content="true" />
         <meta name="theme-color" content="#e0eff6" />
       </head>

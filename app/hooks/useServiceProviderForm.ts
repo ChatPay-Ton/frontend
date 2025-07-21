@@ -187,7 +187,7 @@ export const useServiceProviderForm = () => {
 		} finally {
 			setIsSubmitting(false);
 		}
-	}, [formData, validateForm]);
+	}, [formData, address, validateForm]);
 
 	const resetForm = useCallback(() => {
 		setFormData(initialFormData);

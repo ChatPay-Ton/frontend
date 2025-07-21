@@ -14,13 +14,29 @@ import type {
   UpdateContractedService,
 } from '../../types/database';
 
+// Tipos para resultados do banco de dados
+interface DatabaseRow {
+  [key: string]: unknown;
+}
+
+interface QueryResult {
+  rows: DatabaseRow[];
+  rowsAffected: number;
+}
+
+interface DatabaseTransaction {
+  execute: (query: { sql: string; args: unknown[] }) => Promise<QueryResult>;
+  commit: () => Promise<void>;
+  rollback: () => Promise<void>;
+}
+
 // ===== SERVICE PROVIDERS =====
 
 export class ServiceProviderService {
   static async create(data: CreateServiceProviderWithAvailability): Promise<ServiceProvider> {
     try {
       // Usar transação para inserir dados nas duas tabelas
-      const transaction = await db.transaction();
+      const transaction = await db.transaction() as DatabaseTransaction;
 
       try {
         // 1. Inserir dados do prestador
@@ -46,7 +62,7 @@ export class ServiceProviderService {
           ],
         });
 
-        const provider = providerResult.rows[0] as any;
+        const provider = providerResult.rows[0] as unknown as ServiceProvider;
         console.log("providerResult", providerResult);
 
         // 2. Inserir dados de disponibilidade
@@ -81,9 +97,9 @@ export class ServiceProviderService {
     const result = await db.execute({
       sql: 'SELECT * FROM service_providers WHERE id = ?',
       args: [id],
-    });
+    }) as QueryResult;
 
-    return result.rows[0] as any || null;
+    return (result.rows[0] as unknown as ServiceProvider) || null;
   }
 
   static async findByWalletAddress(walletAddress: string): Promise<ServiceProvider | null> {
@@ -93,7 +109,7 @@ export class ServiceProviderService {
       const result = await db.execute({
         sql: 'SELECT * FROM service_providers WHERE wallet_address = ?',
         args: [walletAddress],
-      });
+      }) as QueryResult;
 
       console.log('📊 Resultado da consulta:', {
         rowCount: result.rows.length,
@@ -105,7 +121,7 @@ export class ServiceProviderService {
         return null;
       }
 
-      const provider = result.rows[0] as any;
+      const provider = result.rows[0] as unknown as ServiceProvider;
       console.log('✅ Prestador encontrado:', provider);
 
       return provider;
@@ -119,9 +135,9 @@ export class ServiceProviderService {
     const result = await db.execute({
       sql: 'SELECT * FROM service_providers WHERE category = ? ORDER BY created_at DESC',
       args: [category],
-    });
+    }) as QueryResult;
 
-    return result.rows as any;
+    return result.rows as unknown as ServiceProvider[];
   }
 
   static async findAll(): Promise<ServiceProvider[]> {
@@ -150,9 +166,9 @@ export class ServiceProviderService {
       GROUP BY 
           sp.id, sp.name, sp.email, sp.phone, sp.category, sp.description, sp.hourly_rate,
           sp.city, sp.state, sp.country, sp.experience, sp.rating, sp.completed_jobs, sp.verified;
-      `);
+      `) as QueryResult;
 
-      return result.rows as any;
+      return result.rows as unknown as ServiceProvider[];
     } catch (error) {
       console.error('Erro ao buscar prestadores:', error);
       return []; // Retornar array vazio em caso de erro
@@ -160,7 +176,7 @@ export class ServiceProviderService {
   }
 
   // Método para buscar um prestador específico com disponibilidade completa
-  static async findByIdWithAvailability(id: string): Promise<ServiceProvider & { availability: string[] } | null> {
+  static async findByIdWithAvailability(id: string): Promise<(Omit<ServiceProvider, 'availability'> & { availability: string[] }) | null> {
     try {
       // Buscar dados do prestador
       const providerResult = await db.execute({
@@ -169,7 +185,7 @@ export class ServiceProviderService {
           WHERE id = ?
         `,
         args: [id],
-      });
+      }) as QueryResult;
 
       if (providerResult.rows.length === 0) {
         return null;
@@ -182,14 +198,18 @@ export class ServiceProviderService {
           WHERE provider_id = ?
         `,
         args: [id],
-      });
+      }) as QueryResult;
 
-      const provider = providerResult.rows[0] as any;
-      const availability = availabilityResult.rows.map((row: any) => row.day_of_week);
+      const provider = providerResult.rows[0] as unknown as ServiceProvider;
+      const availabilityArray = availabilityResult.rows.map((row: DatabaseRow) => (row as unknown as { day_of_week: string }).day_of_week);
+
+      // Omitir a propriedade availability original e adicionar a nova
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { availability, ...providerWithoutAvailability } = provider;
 
       return {
-        ...provider,
-        availability,
+        ...providerWithoutAvailability,
+        availability: availabilityArray,
       };
     } catch (error) {
       console.error('Erro ao buscar prestador:', error);
@@ -207,16 +227,16 @@ export class ServiceProviderService {
     const result = await db.execute({
       sql: `UPDATE service_providers SET ${setClause} WHERE id = ? RETURNING *`,
       args: [...values, id],
-    });
+    }) as QueryResult;
 
-    return result.rows[0] as any || null;
+    return (result.rows[0] as unknown as ServiceProvider) || null;
   }
 
   static async delete(id: string): Promise<boolean> {
     const result = await db.execute({
       sql: 'DELETE FROM service_providers WHERE id = ?',
       args: [id],
-    });
+    }) as QueryResult;
 
     return result.rowsAffected > 0;
   }
@@ -233,18 +253,18 @@ export class ClientService {
         RETURNING *
       `,
       args: [data.id, data.name, data.email, data.phone, data.wallet_address],
-    });
+    }) as QueryResult;
 
-    return result.rows[0] as any;
+    return result.rows[0] as unknown as Client;
   }
 
   static async findById(id: string): Promise<Client | null> {
     const result = await db.execute({
       sql: 'SELECT * FROM clients WHERE id = ?',
       args: [id],
-    });
+    }) as QueryResult;
 
-    return result.rows[0] as any || null;
+    return (result.rows[0] as unknown as Client) || null;
   }
 
   static async findByWalletAddress(walletAddress: string): Promise<Client | null> {
@@ -254,7 +274,7 @@ export class ClientService {
       const result = await db.execute({
         sql: 'SELECT * FROM clients WHERE wallet_address = ?',
         args: [walletAddress],
-      });
+      }) as QueryResult;
 
       console.log('📊 Resultado da consulta cliente:', {
         rowCount: result.rows.length,
@@ -266,7 +286,7 @@ export class ClientService {
         return null;
       }
 
-      const client = result.rows[0] as any;
+      const client = result.rows[0] as unknown as Client;
       console.log('✅ Cliente encontrado:', client);
 
       return client;
@@ -277,8 +297,8 @@ export class ClientService {
   }
 
   static async findAll(): Promise<Client[]> {
-    const result = await db.execute('SELECT * FROM clients ORDER BY created_at DESC');
-    return result.rows as any;
+    const result = await db.execute('SELECT * FROM clients ORDER BY created_at DESC') as QueryResult;
+    return result.rows as unknown as Client[];
   }
 
   static async update(id: string, data: UpdateClient): Promise<Client | null> {
@@ -291,16 +311,16 @@ export class ClientService {
     const result = await db.execute({
       sql: `UPDATE clients SET ${setClause} WHERE id = ? RETURNING *`,
       args: [...values, id],
-    });
+    }) as QueryResult;
 
-    return result.rows[0] as any || null;
+    return (result.rows[0] as unknown as Client) || null;
   }
 
   static async delete(id: string): Promise<boolean> {
     const result = await db.execute({
       sql: 'DELETE FROM clients WHERE id = ?',
       args: [id],
-    });
+    }) as QueryResult;
 
     return result.rowsAffected > 0;
   }
@@ -317,36 +337,36 @@ export class ServiceService {
         RETURNING *
       `,
       args: [data.title, data.description, data.price, data.provider_id, data.category, data.duration_hours],
-    });
+    }) as QueryResult;
 
-    return result.rows[0] as any;
+    return result.rows[0] as unknown as Service;
   }
 
   static async findById(id: string): Promise<Service | null> {
     const result = await db.execute({
       sql: 'SELECT * FROM services WHERE id = ?',
       args: [id],
-    });
+    }) as QueryResult;
 
-    return result.rows[0] as any || null;
+    return (result.rows[0] as unknown as Service) || null;
   }
 
   static async findByProviderId(providerId: string): Promise<Service[]> {
     const result = await db.execute({
       sql: 'SELECT * FROM services WHERE provider_id = ? ORDER BY created_at DESC',
       args: [providerId],
-    });
+    }) as QueryResult;
 
-    return result.rows as any;
+    return result.rows as unknown as Service[];
   }
 
   static async findByCategory(category: string): Promise<Service[]> {
     const result = await db.execute({
       sql: 'SELECT * FROM services WHERE category = ? ORDER BY created_at DESC',
       args: [category],
-    });
+    }) as QueryResult;
 
-    return result.rows as any;
+    return result.rows as unknown as Service[];
   }
 
   static async findAll(): Promise<Service[]> {
@@ -374,8 +394,8 @@ export class ServiceService {
       GROUP BY 
           sp.id, sp.name, sp.email, sp.phone, sp.category, sp.description, sp.hourly_rate,
           sp.city, sp.state, sp.country, sp.experience, sp.rating, sp.completed_jobs, sp.verified;
-      `);
-    return result.rows as any;
+      `) as QueryResult;
+    return result.rows as unknown as Service[];
   }
 
   static async update(id: string, data: UpdateService): Promise<Service | null> {
@@ -388,16 +408,16 @@ export class ServiceService {
     const result = await db.execute({
       sql: `UPDATE services SET ${setClause} WHERE id = ? RETURNING *`,
       args: [...values, id],
-    });
+    }) as QueryResult;
 
-    return result.rows[0] as any || null;
+    return (result.rows[0] as unknown as Service) || null;
   }
 
   static async delete(id: string): Promise<boolean> {
     const result = await db.execute({
       sql: 'DELETE FROM services WHERE id = ?',
       args: [id],
-    });
+    }) as QueryResult;
 
     return result.rowsAffected > 0;
   }
@@ -414,50 +434,50 @@ export class ContractedServiceService {
         RETURNING *
       `,
       args: [data.service_id, data.client_id, data.provider_id, data.status, data.total_amount, data.notes || null],
-    });
+    }) as QueryResult;
 
-    return result.rows[0] as any;
+    return result.rows[0] as unknown as ContractedService;
   }
 
   static async findById(id: string): Promise<ContractedService | null> {
     const result = await db.execute({
       sql: 'SELECT * FROM contracted_services WHERE id = ?',
       args: [id],
-    });
+    }) as QueryResult;
 
-    return result.rows[0] as any || null;
+    return (result.rows[0] as unknown as ContractedService) || null;
   }
 
   static async findByClientId(clientId: string): Promise<ContractedService[]> {
     const result = await db.execute({
       sql: 'SELECT * FROM contracted_services WHERE client_id = ? ORDER BY contracted_at DESC',
       args: [clientId],
-    });
+    }) as QueryResult;
 
-    return result.rows as any;
+    return result.rows as unknown as ContractedService[];
   }
 
   static async findByProviderId(providerId: string): Promise<ContractedService[]> {
     const result = await db.execute({
       sql: 'SELECT * FROM contracted_services WHERE provider_id = ? ORDER BY contracted_at DESC',
       args: [providerId],
-    });
+    }) as QueryResult;
 
-    return result.rows as any;
+    return result.rows as unknown as ContractedService[];
   }
 
   static async findByStatus(status: string): Promise<ContractedService[]> {
     const result = await db.execute({
       sql: 'SELECT * FROM contracted_services WHERE status = ? ORDER BY contracted_at DESC',
       args: [status],
-    });
+    }) as QueryResult;
 
-    return result.rows as any;
+    return result.rows as unknown as ContractedService[];
   }
 
   static async findAll(): Promise<ContractedService[]> {
-    const result = await db.execute('SELECT * FROM contracted_services ORDER BY contracted_at DESC');
-    return result.rows as any;
+    const result = await db.execute('SELECT * FROM contracted_services ORDER BY contracted_at DESC') as QueryResult;
+    return result.rows as unknown as ContractedService[];
   }
 
   static async update(id: string, data: UpdateContractedService): Promise<ContractedService | null> {
@@ -470,16 +490,16 @@ export class ContractedServiceService {
     const result = await db.execute({
       sql: `UPDATE contracted_services SET ${setClause} WHERE id = ? RETURNING *`,
       args: [...values, id],
-    });
+    }) as QueryResult;
 
-    return result.rows[0] as any || null;
+    return (result.rows[0] as unknown as ContractedService) || null;
   }
 
   static async delete(id: string): Promise<boolean> {
     const result = await db.execute({
       sql: 'DELETE FROM contracted_services WHERE id = ?',
       args: [id],
-    });
+    }) as QueryResult;
 
     return result.rowsAffected > 0;
   }
@@ -494,13 +514,13 @@ export class ContractedServiceService {
         RETURNING *
       `,
       args: [id],
-    });
+    }) as QueryResult;
 
-    return result.rows[0] as any || null;
+    return (result.rows[0] as unknown as ContractedService) || null;
   }
 
   // Método para buscar serviços com informações detalhadas (JOIN)
-  static async findWithDetails(id: string): Promise<any> {
+  static async findWithDetails(id: string): Promise<unknown | null> {
     const result = await db.execute({
       sql: `
         SELECT 
@@ -520,7 +540,7 @@ export class ContractedServiceService {
         WHERE cs.id = ?
       `,
       args: [id],
-    });
+    }) as QueryResult;
 
     return result.rows[0] || null;
   }
