@@ -1,4 +1,4 @@
-import { db } from './config';
+import { getDb } from './config';
 import type {
   ServiceProvider,
   Client,
@@ -36,7 +36,7 @@ export class ServiceProviderService {
   static async create(data: CreateServiceProviderWithAvailability): Promise<ServiceProvider> {
     try {
       // Usar transação para inserir dados nas duas tabelas
-      const transaction = await db.transaction() as DatabaseTransaction;
+      const transaction = await getDb().transaction() as DatabaseTransaction;
 
       try {
         // 1. Inserir dados do prestador
@@ -94,7 +94,7 @@ export class ServiceProviderService {
   }
 
   static async findById(id: string): Promise<ServiceProvider | null> {
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: 'SELECT * FROM service_providers WHERE id = ?',
       args: [id],
     }) as QueryResult;
@@ -106,7 +106,7 @@ export class ServiceProviderService {
     try {
       console.log('🔍 Buscando prestador por wallet:', walletAddress);
 
-      const result = await db.execute({
+      const result = await getDb().execute({
         sql: 'SELECT * FROM service_providers WHERE wallet_address = ?',
         args: [walletAddress],
       }) as QueryResult;
@@ -132,7 +132,7 @@ export class ServiceProviderService {
   }
 
   static async findByCategory(category: string): Promise<ServiceProvider[]> {
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: 'SELECT * FROM service_providers WHERE category = ? ORDER BY created_at DESC',
       args: [category],
     }) as QueryResult;
@@ -142,7 +142,7 @@ export class ServiceProviderService {
 
   static async findAll(): Promise<ServiceProvider[]> {
     try {
-      const result = await db.execute(`
+      const result = await getDb().execute(`
         SELECT 
           sp.id, 
           sp.name, 
@@ -179,7 +179,7 @@ export class ServiceProviderService {
   static async findByIdWithAvailability(id: string): Promise<(Omit<ServiceProvider, 'availability'> & { availability: string[] }) | null> {
     try {
       // Buscar dados do prestador
-      const providerResult = await db.execute({
+      const providerResult = await getDb().execute({
         sql: `
           SELECT * FROM service_providers 
           WHERE id = ?
@@ -192,7 +192,7 @@ export class ServiceProviderService {
       }
 
       // Buscar disponibilidade do prestador
-      const availabilityResult = await db.execute({
+      const availabilityResult = await getDb().execute({
         sql: `
           SELECT day_of_week FROM provider_availability 
           WHERE provider_id = ?
@@ -224,7 +224,7 @@ export class ServiceProviderService {
     const setClause = fields.map(field => `${field} = ?`).join(', ');
     const values = fields.map(field => data[field as keyof UpdateServiceProvider]).filter(v => v !== undefined);
 
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: `UPDATE service_providers SET ${setClause} WHERE id = ? RETURNING *`,
       args: [...values, id],
     }) as QueryResult;
@@ -233,7 +233,7 @@ export class ServiceProviderService {
   }
 
   static async delete(id: string): Promise<boolean> {
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: 'DELETE FROM service_providers WHERE id = ?',
       args: [id],
     }) as QueryResult;
@@ -246,7 +246,7 @@ export class ServiceProviderService {
 
 export class ClientService {
   static async create(data: CreateClient): Promise<Client> {
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: `
         INSERT INTO clients (id, name, email, phone, wallet_address)
         VALUES (?, ?, ?, ?, ?)
@@ -259,7 +259,7 @@ export class ClientService {
   }
 
   static async findById(id: string): Promise<Client | null> {
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: 'SELECT * FROM clients WHERE id = ?',
       args: [id],
     }) as QueryResult;
@@ -271,7 +271,7 @@ export class ClientService {
     try {
       console.log('🔍 Buscando cliente por wallet:', walletAddress);
 
-      const result = await db.execute({
+      const result = await getDb().execute({
         sql: 'SELECT * FROM clients WHERE wallet_address = ?',
         args: [walletAddress],
       }) as QueryResult;
@@ -297,7 +297,7 @@ export class ClientService {
   }
 
   static async findAll(): Promise<Client[]> {
-    const result = await db.execute('SELECT * FROM clients ORDER BY created_at DESC') as QueryResult;
+    const result = await getDb().execute('SELECT * FROM clients ORDER BY created_at DESC') as QueryResult;
     return result.rows as unknown as Client[];
   }
 
@@ -308,7 +308,7 @@ export class ClientService {
     const setClause = fields.map(field => `${field} = ?`).join(', ');
     const values = fields.map(field => data[field as keyof UpdateClient]).filter(v => v !== undefined);
 
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: `UPDATE clients SET ${setClause} WHERE id = ? RETURNING *`,
       args: [...values, id],
     }) as QueryResult;
@@ -317,7 +317,7 @@ export class ClientService {
   }
 
   static async delete(id: string): Promise<boolean> {
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: 'DELETE FROM clients WHERE id = ?',
       args: [id],
     }) as QueryResult;
@@ -330,7 +330,7 @@ export class ClientService {
 
 export class ServiceService {
   static async create(data: CreateService): Promise<Service> {
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: `
         INSERT INTO services (title, description, price, provider_id, category, duration_hours)
         VALUES (?, ?, ?, ?, ?, ?)
@@ -343,7 +343,7 @@ export class ServiceService {
   }
 
   static async findById(id: string): Promise<Service | null> {
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: 'SELECT * FROM services WHERE id = ?',
       args: [id],
     }) as QueryResult;
@@ -352,7 +352,7 @@ export class ServiceService {
   }
 
   static async findByProviderId(providerId: string): Promise<Service[]> {
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: 'SELECT * FROM services WHERE provider_id = ? ORDER BY created_at DESC',
       args: [providerId],
     }) as QueryResult;
@@ -361,7 +361,7 @@ export class ServiceService {
   }
 
   static async findByCategory(category: string): Promise<Service[]> {
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: 'SELECT * FROM services WHERE category = ? ORDER BY created_at DESC',
       args: [category],
     }) as QueryResult;
@@ -370,7 +370,7 @@ export class ServiceService {
   }
 
   static async findAll(): Promise<Service[]> {
-    const result = await db.execute(`
+    const result = await getDb().execute(`
       SELECT 
           sp.id, 
           sp.name, 
@@ -405,7 +405,7 @@ export class ServiceService {
     const setClause = fields.map(field => `${field} = ?`).join(', ');
     const values = fields.map(field => data[field as keyof UpdateService]).filter(v => v !== undefined);
 
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: `UPDATE services SET ${setClause} WHERE id = ? RETURNING *`,
       args: [...values, id],
     }) as QueryResult;
@@ -414,7 +414,7 @@ export class ServiceService {
   }
 
   static async delete(id: string): Promise<boolean> {
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: 'DELETE FROM services WHERE id = ?',
       args: [id],
     }) as QueryResult;
@@ -427,7 +427,7 @@ export class ServiceService {
 
 export class ContractedServiceService {
   static async create(data: CreateContractedService): Promise<ContractedService> {
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: `
         INSERT INTO contracted_services (service_id, client_id, provider_id, status, total_amount, notes)
         VALUES (?, ?, ?, ?, ?, ?)
@@ -440,7 +440,7 @@ export class ContractedServiceService {
   }
 
   static async findById(id: string): Promise<ContractedService | null> {
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: 'SELECT * FROM contracted_services WHERE id = ?',
       args: [id],
     }) as QueryResult;
@@ -449,7 +449,7 @@ export class ContractedServiceService {
   }
 
   static async findByClientId(clientId: string): Promise<ContractedService[]> {
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: 'SELECT * FROM contracted_services WHERE client_id = ? ORDER BY contracted_at DESC',
       args: [clientId],
     }) as QueryResult;
@@ -458,7 +458,7 @@ export class ContractedServiceService {
   }
 
   static async findByProviderId(providerId: string): Promise<ContractedService[]> {
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: 'SELECT * FROM contracted_services WHERE provider_id = ? ORDER BY contracted_at DESC',
       args: [providerId],
     }) as QueryResult;
@@ -467,7 +467,7 @@ export class ContractedServiceService {
   }
 
   static async findByStatus(status: string): Promise<ContractedService[]> {
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: 'SELECT * FROM contracted_services WHERE status = ? ORDER BY contracted_at DESC',
       args: [status],
     }) as QueryResult;
@@ -476,7 +476,7 @@ export class ContractedServiceService {
   }
 
   static async findAll(): Promise<ContractedService[]> {
-    const result = await db.execute('SELECT * FROM contracted_services ORDER BY contracted_at DESC') as QueryResult;
+    const result = await getDb().execute('SELECT * FROM contracted_services ORDER BY contracted_at DESC') as QueryResult;
     return result.rows as unknown as ContractedService[];
   }
 
@@ -487,7 +487,7 @@ export class ContractedServiceService {
     const setClause = fields.map(field => `${field} = ?`).join(', ');
     const values = fields.map(field => data[field as keyof UpdateContractedService]).filter(v => v !== undefined);
 
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: `UPDATE contracted_services SET ${setClause} WHERE id = ? RETURNING *`,
       args: [...values, id],
     }) as QueryResult;
@@ -496,7 +496,7 @@ export class ContractedServiceService {
   }
 
   static async delete(id: string): Promise<boolean> {
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: 'DELETE FROM contracted_services WHERE id = ?',
       args: [id],
     }) as QueryResult;
@@ -506,7 +506,7 @@ export class ContractedServiceService {
 
   // Método específico para completar um serviço
   static async completeService(id: string): Promise<ContractedService | null> {
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: `
         UPDATE contracted_services 
         SET status = 'completed', completed_at = CURRENT_TIMESTAMP 
@@ -521,7 +521,7 @@ export class ContractedServiceService {
 
   // Método para buscar serviços com informações detalhadas (JOIN)
   static async findWithDetails(id: string): Promise<unknown | null> {
-    const result = await db.execute({
+    const result = await getDb().execute({
       sql: `
         SELECT 
           cs.*,
