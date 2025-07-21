@@ -1,0 +1,497 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Paleta de Cores do Mini App */
+  --navy-primary: #181b4a;
+  --purple-magic: #6f43d0;
+  --blue-connect: #1992e6;
+  --turquoise-flow: #29d6d7;
+  --light-blue: #e0eff6;
+
+  /* Gradiente Principal */
+  --gradient-primary: linear-gradient(135deg, #29d6d7 0%, #1992e6 50%, #6f43d0 100%);
+  --gradient-flow: linear-gradient(90deg, #29d6d7 0%, #1992e6 50%, #6f43d0 100%);
+
+  /* Variáveis do tema */
+  --background: var(--light-blue);
+  --foreground: var(--navy-primary);
+  --accent: var(--purple-magic);
+  --secondary: var(--blue-connect);
+  --flow: var(--turquoise-flow);
+}
+
+@theme inline {
+  --color-navy-primary: var(--navy-primary);
+  --color-purple-magic: var(--purple-magic);
+  --color-blue-connect: var(--blue-connect);
+  --color-turquoise-flow: var(--turquoise-flow);
+  --color-light-blue: var(--light-blue);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-secondary: var(--secondary);
+  --color-flow: var(--flow);
+
+  --font-sans: "Inter", "HK Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "HK Grotesk", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Configurações do Tailwind para as cores personalizadas */
+  --color-primary: var(--navy-primary);
+  --color-primary-50: #f8f9ff;
+  --color-primary-100: #e0e3ff;
+  --color-primary-200: #c7ccff;
+  --color-primary-300: #a3abff;
+  --color-primary-400: #7a83ff;
+  --color-primary-500: var(--purple-magic);
+  --color-primary-600: var(--navy-primary);
+  --color-primary-700: #12154a;
+  --color-primary-800: #0f123d;
+  --color-primary-900: #0c0f30;
+
+  --color-secondary: var(--blue-connect);
+  --color-secondary-50: #f0f9ff;
+  --color-secondary-100: #e0f2fe;
+  --color-secondary-200: #bae6fd;
+  --color-secondary-300: #7dd3fc;
+  --color-secondary-400: #38bdf8;
+  --color-secondary-500: var(--blue-connect);
+  --color-secondary-600: #0284c7;
+  --color-secondary-700: #0369a1;
+  --color-secondary-800: #075985;
+  --color-secondary-900: #0c4a6e;
+
+  --color-accent: var(--purple-magic);
+  --color-accent-50: #faf7ff;
+  --color-accent-100: #f3edff;
+  --color-accent-200: #e9deff;
+  --color-accent-300: #d4c2ff;
+  --color-accent-400: #b994ff;
+  --color-accent-500: var(--purple-magic);
+  --color-accent-600: #5b35b8;
+  --color-accent-700: #4a2a9c;
+  --color-accent-800: #3d2280;
+  --color-accent-900: #301d66;
+
+  --color-flow: var(--turquoise-flow);
+  --color-flow-50: #f0fdff;
+  --color-flow-100: #ccfbf1;
+  --color-flow-200: #99f6e4;
+  --color-flow-300: #5eead4;
+  --color-flow-400: var(--turquoise-flow);
+  --color-flow-500: #14b8a6;
+  --color-flow-600: #0d9488;
+  --color-flow-700: #0f766e;
+  --color-flow-800: #115e59;
+  --color-flow-900: #134e4a;
+}
+
+/* Configurações globais do corpo */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-feature-settings: "rlig" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Classes utilitárias para gradientes */
+.gradient-primary {
+  background: var(--gradient-primary);
+}
+
+.gradient-flow {
+  background: var(--gradient-flow);
+}
+
+/* Estilos para o Telegram Mini App */
+.telegram-mini-app {
+  min-height: 100vh;
+  background: var(--light-blue);
+  color: var(--navy-primary);
+}
+
+/* Botões com estilo do mini app */
+.btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(111, 67, 208, 0.25);
+}
+
+.btn-secondary {
+  background: var(--purple-magic);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: #5b35b8;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(111, 67, 208, 0.25);
+}
+
+/* Cards e elementos de interface */
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(24, 27, 74, 0.08);
+  border: 1px solid rgba(224, 239, 246, 0.5);
+}
+
+.card-gradient {
+  background: var(--gradient-primary);
+  color: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(111, 67, 208, 0.25);
+}
+
+/* Texto com cores personalizadas */
+.text-navy {
+  color: var(--navy-primary);
+}
+
+.text-purple {
+  color: var(--purple-magic);
+}
+
+.text-blue {
+  color: var(--blue-connect);
+}
+
+.text-turquoise {
+  color: var(--turquoise-flow);
+}
+
+.text-light-blue {
+  color: var(--light-blue);
+}
+
+/* Backgrounds */
+.bg-navy {
+  background-color: var(--navy-primary);
+}
+
+.bg-purple {
+  background-color: var(--purple-magic);
+}
+
+.bg-blue {
+  background-color: var(--blue-connect);
+}
+
+.bg-turquoise {
+  background-color: var(--turquoise-flow);
+}
+
+.bg-light-blue {
+  background-color: var(--light-blue);
+}
+
+/* Form styles específicos para mobile */
+.form-input {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 16px;
+  /* Evita zoom no iOS */
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--purple-magic);
+  box-shadow: 0 0 0 3px rgba(111, 67, 208, 0.1);
+}
+
+.form-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: white url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") no-repeat right 12px center;
+  background-size: 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px 40px 12px 16px;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: var(--purple-magic);
+  box-shadow: 0 0 0 3px rgba(111, 67, 208, 0.1);
+}
+
+.form-textarea {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  width: 100%;
+  resize: none;
+  font-family: inherit;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--purple-magic);
+  box-shadow: 0 0 0 3px rgba(111, 67, 208, 0.1);
+}
+
+.form-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.form-checkbox:checked {
+  background: var(--purple-magic);
+  border-color: var(--purple-magic);
+}
+
+.form-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.form-checkbox:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(111, 67, 208, 0.1);
+}
+
+/* Animação de loading */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Melhorias para telas muito pequenas */
+@media (max-width: 375px) {
+  .card {
+    padding: 16px;
+    margin: 0 8px;
+  }
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    padding: 10px 12px;
+    font-size: 16px;
+  }
+
+  .btn-primary {
+    padding: 14px 20px;
+    font-size: 16px;
+  }
+}
+
+/* Estilos específicos para a tela de login */
+.login-screen {
+  background: var(--light-blue);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 1rem;
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.logo-container img {
+  max-width: 180px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(24, 27, 74, 0.1);
+}
+
+.connect-wallet-btn {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  padding: 16px 24px;
+  font-weight: 600;
+  font-size: 18px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  box-shadow: 0 4px 20px rgba(111, 67, 208, 0.25);
+}
+
+.connect-wallet-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(111, 67, 208, 0.35);
+}
+
+.connect-wallet-btn:active {
+  transform: translateY(0);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.feature-card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: translateY(-2px);
+}
+
+/* Navegação com logout */
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.logout-btn {
+  margin-left: 0.75rem;
+  padding: 0.5rem;
+  color: #6b7280;
+  background: none;
+  border: none;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  color: #374151;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Search Screen Styles */
+.search-filters {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.provider-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.provider-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.rating-stars {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+.skill-tag {
+  background: rgba(41, 214, 215, 0.1);
+  color: var(--turquoise-flow);
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.filter-button {
+  transition: all 0.2s ease;
+}
+
+.filter-button:hover {
+  transform: translateY(-1px);
+}
+
+.modal-overlay {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+@media (max-width: 768px) {
+  .search-filters {
+    max-height: 300px;
+  }
+
+  .provider-card {
+    margin-bottom: 1rem;
+  }
+}
