@@ -14,21 +14,44 @@ if (process.env.NODE_ENV === 'development') {
     hasUrl: !!dbUrl,
     hasToken: !!authToken,
     isServerSide,
-    isBuildTime
+    isBuildTime,
+    url: dbUrl?.substring(0, 20) + '...' // Mostrar apenas parte da URL por segurança
   });
 }
 
 // Verificar se as variáveis de ambiente estão configuradas
-if (!dbUrl && process.env.NODE_ENV === 'development') {
-  console.warn('⚠️  NEXT_PUBLIC_DATABASE_URL não está configurada');
-  console.warn('📝 Configure as variáveis de ambiente baseadas no arquivo ENVIRONMENT_SETUP.md');
+if (!dbUrl) {
+  console.error('❌ NEXT_PUBLIC_DATABASE_URL não está configurada');
+
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('DATABASE_URL is required in production environment');
+  }
+}
+
+if (!authToken && dbUrl?.startsWith('libsql:')) {
+  console.warn('⚠️  NEXT_PUBLIC_DATABASE_AUTH_TOKEN não está configurada para URL libsql://');
 }
 
 // Configuração padrão
 const getDbConfig = () => {
-  // Durante o build ou se não há URL, usar SQLite local
-  if (isBuildTime || !dbUrl) {
-    return { url: 'file:local.db' };
+  // Em produção, as variáveis devem estar configuradas
+  if (process.env.NODE_ENV === 'production' && !dbUrl) {
+    throw new Error('NEXT_PUBLIC_DATABASE_URL is required in production');
+  }
+
+  // Para desenvolvimento sem URL configurada, usar um banco in-memory
+  if (!dbUrl) {
+    console.warn('⚠️  Usando banco de dados em memória (apenas desenvolvimento)');
+    return { url: ':memory:' };
+  }
+
+  // Validar se a URL tem um esquema suportado
+  const supportedSchemes = ['libsql:', 'wss:', 'ws:', 'https:', 'http:'];
+  const hasValidScheme = supportedSchemes.some(scheme => dbUrl.startsWith(scheme));
+
+  if (!hasValidScheme) {
+    console.error('❌ URL do banco deve usar um dos esquemas suportados: libsql://, wss://, ws://, https://, http://');
+    throw new Error(`Unsupported URL scheme: ${dbUrl}. Supported schemes: ${supportedSchemes.join(', ')}`);
   }
 
   return {
@@ -44,11 +67,12 @@ const getDatabase = () => {
   if (!db) {
     try {
       const config = getDbConfig();
+      console.log('🔗 Conectando ao banco de dados...');
       db = createClient(config);
+      console.log('✅ Conexão com banco estabelecida');
     } catch (error) {
       console.error('❌ Erro ao conectar com o banco de dados:', error);
-      // Fallback para SQLite local em caso de erro
-      db = createClient({ url: 'file:local.db' });
+      throw error; // Re-throw o erro ao invés de usar fallback problemático
     }
   }
   return db;
