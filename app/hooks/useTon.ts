@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useTonConnectUI } from '@tonconnect/ui-react';
 import { useTonAuth } from './useTonAuth';
-import { createEscrowSimple, isValidTonAddress } from '../lib/ton-simple';
+import { createEscrowSimple, isValidTonAddress } from '../lib/ton';
 
 export interface CreateEscrowParams {
   providerAddress: string;

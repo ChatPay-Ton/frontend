@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { ServiceProvider } from '../../types/database';
 import { useTon } from '../../hooks/useTon';
-import { isValidTonAddress } from '../../lib/ton-simple';
+import { isValidTonAddress } from '../../lib/ton';
 import { ServiceContractService } from '../../lib/database/service';
 import { CreateServiceContract } from '../../types/database';
 import { toNano } from '@ton/core';
