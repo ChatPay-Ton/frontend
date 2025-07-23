@@ -6,7 +6,7 @@ import WalletInfo from './WalletInfo';
 import type { Client } from '../types/database';
 
 const ClientDashboard: React.FC = () => {
-  const { userData, logout, goToSearch } = useUser();
+  const { userData, logout, goToSearch, setCurrentScreen } = useUser();
   const clientData = userData as Client;
 
   return (
@@ -84,14 +84,17 @@ const ClientDashboard: React.FC = () => {
             <p className="text-sm text-gray-600 mb-4">
               Visualize e gerencie seus contratos ativos
             </p>
-            <button className="w-full btn-secondary">
+            <button
+              onClick={() => setCurrentScreen('client-contracts')}
+              className="w-full btn-secondary"
+            >
               Ver Contratos
             </button>
           </div>
         </div>
 
         {/* Estatísticas */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        {/* <div className="bg-white rounded-lg shadow-sm p-6">
           <h3 className="text-lg font-semibold text-navy mb-4">
             Resumo da Conta
           </h3>
@@ -109,7 +112,7 @@ const ClientDashboard: React.FC = () => {
               <div className="text-sm text-gray-600">Avaliações Feitas</div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
