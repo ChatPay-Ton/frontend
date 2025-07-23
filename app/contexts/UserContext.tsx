@@ -7,7 +7,7 @@ import type { Client, ServiceProvider } from '../types/database';
 
 interface UserContextType extends UserTypeData {
   // Controle de navegação
-  currentScreen: 'login' | 'user-type-selection' | 'client-registration' | 'provider-registration' | 'client-dashboard' | 'provider-dashboard' | 'search';
+  currentScreen: 'login' | 'user-type-selection' | 'client-registration' | 'provider-registration' | 'client-dashboard' | 'provider-dashboard' | 'search' | 'client-contracts';
   setCurrentScreen: (screen: UserContextType['currentScreen']) => void;
 
   // Ações do usuário

@@ -11,6 +11,7 @@ import ClientDashboard from '../components/ClientDashboard';
 import ProviderDashboard from '../components/ProviderDashboard';
 import SearchScreen from '../components/SearchScreen';
 import LoadingScreen from '../components/LoadingScreen';
+import ClientContracts from '../components/ClientContracts';
 
 const AppRouter: React.FC = () => {
   const { currentScreen, isLoading } = useUser();
@@ -37,6 +38,9 @@ const AppRouter: React.FC = () => {
 
     case 'client-dashboard':
       return <ClientDashboard />;
+
+    case 'client-contracts':
+      return <ClientContracts />;
 
     case 'provider-dashboard':
       return <ProviderDashboard />;

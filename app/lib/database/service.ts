@@ -2,16 +2,13 @@ import { getDb } from './config';
 import type {
   ServiceProvider,
   Client,
-  Service,
-  ContractedService,
+  ServiceContract,
   CreateServiceProviderWithAvailability,
   CreateClient,
-  CreateService,
-  CreateContractedService,
+  CreateServiceContract,
   UpdateServiceProvider,
   UpdateClient,
-  UpdateService,
-  UpdateContractedService,
+  UpdateServiceContract,
 } from '../../types/database';
 
 // Tipos para resultados do banco de dados
@@ -144,7 +141,8 @@ export class ServiceProviderService {
     try {
       const result = await getDb().execute(`
         SELECT 
-          sp.id, 
+          sp.id,
+          sp.wallet_address,
           sp.name, 
           sp.email, 
           sp.phone, 
@@ -164,7 +162,7 @@ export class ServiceProviderService {
       INNER JOIN 
           provider_availability AS pa ON pa.provider_id = sp.id
       GROUP BY 
-          sp.id, sp.name, sp.email, sp.phone, sp.category, sp.description, sp.hourly_rate,
+          sp.id, sp.wallet_address, sp.name, sp.email, sp.phone, sp.category, sp.description, sp.hourly_rate,
           sp.city, sp.state, sp.country, sp.experience, sp.rating, sp.completed_jobs, sp.verified;
       `) as QueryResult;
 
@@ -328,220 +326,377 @@ export class ClientService {
 
 // ===== SERVICES =====
 
-export class ServiceService {
-  static async create(data: CreateService): Promise<Service> {
-    const result = await getDb().execute({
-      sql: `
-        INSERT INTO services (title, description, price, provider_id, category, duration_hours)
-        VALUES (?, ?, ?, ?, ?, ?)
-        RETURNING *
-      `,
-      args: [data.title, data.description, data.price, data.provider_id, data.category, data.duration_hours],
-    }) as QueryResult;
+// export class ServiceService {
+//   static async create(data: CreateService): Promise<Service> {
+//     const result = await getDb().execute({
+//       sql: `
+//         INSERT INTO services (title, description, price, provider_id, category, duration_hours)
+//         VALUES (?, ?, ?, ?, ?, ?)
+//         RETURNING *
+//       `,
+//       args: [data.title, data.description, data.price, data.provider_id, data.category, data.duration_hours],
+//     }) as QueryResult;
 
-    return result.rows[0] as unknown as Service;
+//     return result.rows[0] as unknown as Service;
+//   }
+
+//   static async findById(id: string): Promise<Service | null> {
+//     const result = await getDb().execute({
+//       sql: 'SELECT * FROM services WHERE id = ?',
+//       args: [id],
+//     }) as QueryResult;
+
+//     return (result.rows[0] as unknown as Service) || null;
+//   }
+
+//   static async findByProviderId(providerId: string): Promise<Service[]> {
+//     const result = await getDb().execute({
+//       sql: 'SELECT * FROM services WHERE provider_id = ? ORDER BY created_at DESC',
+//       args: [providerId],
+//     }) as QueryResult;
+
+//     return result.rows as unknown as Service[];
+//   }
+
+//   static async findByCategory(category: string): Promise<Service[]> {
+//     const result = await getDb().execute({
+//       sql: 'SELECT * FROM services WHERE category = ? ORDER BY created_at DESC',
+//       args: [category],
+//     }) as QueryResult;
+
+//     return result.rows as unknown as Service[];
+//   }
+
+//   static async findAll(): Promise<Service[]> {
+//     const result = await getDb().execute(`
+//       SELECT 
+//           sp.id, 
+//           sp.name, 
+//           sp.email, 
+//           sp.phone, 
+//           sp.category, 
+//           sp.description, 
+//           sp.hourly_rate,
+//           sp.city, 
+//           sp.state, 
+//           sp.country, 
+//           sp.experience, 
+//           sp.rating, 
+//           sp.completed_jobs, 
+//           sp.verified,
+//           STRING_AGG(pa.day_of_week, ',') AS days_of_week
+//       FROM 
+//           service_providers AS sp
+//       INNER JOIN 
+//           provider_availability AS pa ON pa.provider_id = sp.id
+//       GROUP BY 
+//           sp.id, sp.name, sp.email, sp.phone, sp.category, sp.description, sp.hourly_rate,
+//           sp.city, sp.state, sp.country, sp.experience, sp.rating, sp.completed_jobs, sp.verified;
+//       `) as QueryResult;
+//     return result.rows as unknown as Service[];
+//   }
+
+//   static async update(id: string, data: UpdateService): Promise<Service | null> {
+//     const fields = Object.keys(data).filter(key => data[key as keyof UpdateService] !== undefined);
+//     if (fields.length === 0) return null;
+
+//     const setClause = fields.map(field => `${field} = ?`).join(', ');
+//     const values = fields.map(field => data[field as keyof UpdateService]).filter(v => v !== undefined);
+
+//     const result = await getDb().execute({
+//       sql: `UPDATE services SET ${setClause} WHERE id = ? RETURNING *`,
+//       args: [...values, id],
+//     }) as QueryResult;
+
+//     return (result.rows[0] as unknown as Service) || null;
+//   }
+
+//   static async delete(id: string): Promise<boolean> {
+//     const result = await getDb().execute({
+//       sql: 'DELETE FROM services WHERE id = ?',
+//       args: [id],
+//     }) as QueryResult;
+
+//     return result.rowsAffected > 0;
+//   }
+// }
+
+// // ===== CONTRACTED SERVICES =====
+
+// export class ContractedServiceService {
+//   static async findById(id: string): Promise<ContractedService | null> {
+//     const result = await getDb().execute({
+//       sql: 'SELECT * FROM contracted_services WHERE id = ?',
+//       args: [id],
+//     }) as QueryResult;
+
+//     return (result.rows[0] as unknown as ContractedService) || null;
+//   }
+
+//   static async findByClientId(clientId: string): Promise<ContractedService[]> {
+//     const result = await getDb().execute({
+//       sql: 'SELECT * FROM contracted_services WHERE client_id = ? ORDER BY contracted_at DESC',
+//       args: [clientId],
+//     }) as QueryResult;
+
+//     return result.rows as unknown as ContractedService[];
+//   }
+
+//   static async findByProviderId(providerId: string): Promise<ContractedService[]> {
+//     const result = await getDb().execute({
+//       sql: 'SELECT * FROM contracted_services WHERE provider_id = ? ORDER BY contracted_at DESC',
+//       args: [providerId],
+//     }) as QueryResult;
+
+//     return result.rows as unknown as ContractedService[];
+//   }
+
+//   static async findByStatus(status: string): Promise<ContractedService[]> {
+//     const result = await getDb().execute({
+//       sql: 'SELECT * FROM contracted_services WHERE status = ? ORDER BY contracted_at DESC',
+//       args: [status],
+//     }) as QueryResult;
+
+//     return result.rows as unknown as ContractedService[];
+//   }
+
+//   static async findAll(): Promise<ContractedService[]> {
+//     const result = await getDb().execute('SELECT * FROM contracted_services ORDER BY contracted_at DESC') as QueryResult;
+//     return result.rows as unknown as ContractedService[];
+//   }
+
+//   static async update(id: string, data: UpdateContractedService): Promise<ContractedService | null> {
+//     const fields = Object.keys(data).filter(key => data[key as keyof UpdateContractedService] !== undefined);
+//     if (fields.length === 0) return null;
+
+//     const setClause = fields.map(field => `${field} = ?`).join(', ');
+//     const values = fields.map(field => data[field as keyof UpdateContractedService]).filter(v => v !== undefined);
+
+//     const result = await getDb().execute({
+//       sql: `UPDATE contracted_services SET ${setClause} WHERE id = ? RETURNING *`,
+//       args: [...values, id],
+//     }) as QueryResult;
+
+//     return (result.rows[0] as unknown as ContractedService) || null;
+//   }
+
+//   static async delete(id: string): Promise<boolean> {
+//     const result = await getDb().execute({
+//       sql: 'DELETE FROM contracted_services WHERE id = ?',
+//       args: [id],
+//     }) as QueryResult;
+
+//     return result.rowsAffected > 0;
+//   }
+
+//   // Método específico para completar um serviço
+//   static async completeService(id: string): Promise<ContractedService | null> {
+//     const result = await getDb().execute({
+//       sql: `
+//         UPDATE contracted_services 
+//         SET status = 'completed', completed_at = CURRENT_TIMESTAMP 
+//         WHERE id = ? 
+//         RETURNING *
+//       `,
+//       args: [id],
+//     }) as QueryResult;
+
+//     return (result.rows[0] as unknown as ContractedService) || null;
+//   }
+
+//   // Método para buscar serviços com informações detalhadas (JOIN)
+//   static async findWithDetails(id: string): Promise<unknown | null> {
+//     const result = await getDb().execute({
+//       sql: `
+//         SELECT 
+//           cs.*,
+//           s.title as service_title,
+//           s.description as service_description,
+//           s.price as service_price,
+//           s.category as service_category,
+//           c.name as client_name,
+//           c.email as client_email,
+//           sp.name as provider_name,
+//           sp.email as provider_email
+//         FROM contracted_services cs
+//         JOIN services s ON cs.service_id = s.id
+//         JOIN clients c ON cs.client_id = c.id
+//         JOIN service_providers sp ON cs.provider_id = sp.id
+//         WHERE cs.id = ?
+//       `,
+//       args: [id],
+//     }) as QueryResult;
+
+//     return result.rows[0] || null;
+//   }
+// }
+
+// ===== SERVICE CONTRACTS (TON ESCROW) =====
+
+export class ServiceContractService {
+  static async create(data: CreateServiceContract): Promise<ServiceContract> {
+    try {
+      const result = await getDb().execute({
+        sql: `
+          INSERT INTO service_contracts (
+            id, client_id, provider_id, transaction_hash, total_amount
+          )
+          VALUES (?, ?, ?, ?, ?)
+          RETURNING *
+        `,
+        args: [
+          data.id,
+          data.client_id,
+          data.provider_id,
+          data.transaction_hash || null,
+          data.total_amount,
+        ],
+      }) as QueryResult;
+
+      return result.rows[0] as unknown as ServiceContract;
+    } catch (error) {
+      console.error('❌ Erro ao criar service contract:', error);
+      throw error;
+    }
   }
 
-  static async findById(id: string): Promise<Service | null> {
-    const result = await getDb().execute({
-      sql: 'SELECT * FROM services WHERE id = ?',
-      args: [id],
-    }) as QueryResult;
+  static async findById(id: string): Promise<ServiceContract | null> {
+    try {
+      const result = await getDb().execute({
+        sql: 'SELECT * FROM service_contracts WHERE id = ?',
+        args: [id],
+      }) as QueryResult;
 
-    return (result.rows[0] as unknown as Service) || null;
+      return (result.rows[0] as unknown as ServiceContract) || null;
+    } catch (error) {
+      console.error('❌ Erro ao buscar service contract por ID:', error);
+      return null;
+    }
   }
 
-  static async findByProviderId(providerId: string): Promise<Service[]> {
-    const result = await getDb().execute({
-      sql: 'SELECT * FROM services WHERE provider_id = ? ORDER BY created_at DESC',
-      args: [providerId],
-    }) as QueryResult;
+  static async findByClientId(clientId: string): Promise<ServiceContract[]> {
+    try {
+      const result = await getDb().execute({
+        sql: `SELECT sc.id, sc.client_id AS client, sp.name AS provider, sp.category AS provider_category,
+              sc.total_amount, sc.status, sc.transaction_hash, sc.created_at, sc.updated_at
+              FROM service_contracts AS sc
+              INNER JOIN service_providers AS sp ON sp.id = sc.provider_id
+              WHERE sc.client_id = ?
+              ORDER BY sc.created_at DESC `,
+        args: [clientId],
+      }) as QueryResult;
 
-    return result.rows as unknown as Service[];
+      console.log('result', result.rows);
+      return result.rows as unknown as ServiceContract[];
+    } catch (error) {
+      console.error('❌ Erro ao buscar service contracts por cliente:', error);
+      return [];
+    }
   }
 
-  static async findByCategory(category: string): Promise<Service[]> {
-    const result = await getDb().execute({
-      sql: 'SELECT * FROM services WHERE category = ? ORDER BY created_at DESC',
-      args: [category],
-    }) as QueryResult;
+  static async findByProviderId(providerId: string): Promise<ServiceContract[]> {
+    try {
+      const result = await getDb().execute({
+        sql: 'SELECT * FROM service_contracts WHERE provider_id = ? ORDER BY created_at DESC',
+        args: [providerId],
+      }) as QueryResult;
 
-    return result.rows as unknown as Service[];
+      return result.rows as unknown as ServiceContract[];
+    } catch (error) {
+      console.error('❌ Erro ao buscar service contracts por prestador:', error);
+      return [];
+    }
   }
 
-  static async findAll(): Promise<Service[]> {
-    const result = await getDb().execute(`
-      SELECT 
-          sp.id, 
-          sp.name, 
-          sp.email, 
-          sp.phone, 
-          sp.category, 
-          sp.description, 
-          sp.hourly_rate,
-          sp.city, 
-          sp.state, 
-          sp.country, 
-          sp.experience, 
-          sp.rating, 
-          sp.completed_jobs, 
-          sp.verified,
-          STRING_AGG(pa.day_of_week, ',') AS days_of_week
-      FROM 
-          service_providers AS sp
-      INNER JOIN 
-          provider_availability AS pa ON pa.provider_id = sp.id
-      GROUP BY 
-          sp.id, sp.name, sp.email, sp.phone, sp.category, sp.description, sp.hourly_rate,
-          sp.city, sp.state, sp.country, sp.experience, sp.rating, sp.completed_jobs, sp.verified;
-      `) as QueryResult;
-    return result.rows as unknown as Service[];
+  static async findByWallet(walletAddress: string): Promise<ServiceContract[]> {
+    try {
+      const result = await getDb().execute({
+        sql: `
+          SELECT * FROM service_contracts 
+          WHERE client_wallet = ? OR provider_wallet = ? 
+          ORDER BY created_at DESC
+        `,
+        args: [walletAddress, walletAddress],
+      }) as QueryResult;
+
+      return result.rows as unknown as ServiceContract[];
+    } catch (error) {
+      console.error('❌ Erro ao buscar service contracts por wallet:', error);
+      return [];
+    }
   }
 
-  static async update(id: string, data: UpdateService): Promise<Service | null> {
-    const fields = Object.keys(data).filter(key => data[key as keyof UpdateService] !== undefined);
-    if (fields.length === 0) return null;
+  static async update(id: string, data: UpdateServiceContract): Promise<ServiceContract | null> {
+    try {
+      // Construir query dinamicamente baseada nos campos fornecidos
+      const fields = [];
+      const values = [];
 
-    const setClause = fields.map(field => `${field} = ?`).join(', ');
-    const values = fields.map(field => data[field as keyof UpdateService]).filter(v => v !== undefined);
+      if (data.status !== undefined) {
+        fields.push('status = ?');
+        values.push(data.status);
+      }
 
-    const result = await getDb().execute({
-      sql: `UPDATE services SET ${setClause} WHERE id = ? RETURNING *`,
-      args: [...values, id],
-    }) as QueryResult;
+      if (data.escrow_status !== undefined) {
+        fields.push('escrow_status = ?');
+        values.push(data.escrow_status);
+      }
 
-    return (result.rows[0] as unknown as Service) || null;
+      if (data.transaction_hash !== undefined) {
+        fields.push('transaction_hash = ?');
+        values.push(data.transaction_hash);
+      }
+
+      if (fields.length === 0) {
+        throw new Error('Nenhum campo para atualizar');
+      }
+
+      // Adicionar updated_at
+      fields.push('updated_at = CURRENT_TIMESTAMP');
+
+      // Adicionar ID no final
+      values.push(id);
+
+      const result = await getDb().execute({
+        sql: `
+          UPDATE service_contracts 
+          SET ${fields.join(', ')} 
+          WHERE id = ? 
+          RETURNING *
+        `,
+        args: values,
+      }) as QueryResult;
+
+      return (result.rows[0] as unknown as ServiceContract) || null;
+    } catch (error) {
+      console.error('❌ Erro ao atualizar service contract:', error);
+      return null;
+    }
   }
 
-  static async delete(id: string): Promise<boolean> {
-    const result = await getDb().execute({
-      sql: 'DELETE FROM services WHERE id = ?',
-      args: [id],
-    }) as QueryResult;
-
-    return result.rowsAffected > 0;
-  }
-}
-
-// ===== CONTRACTED SERVICES =====
-
-export class ContractedServiceService {
-  static async create(data: CreateContractedService): Promise<ContractedService> {
-    const result = await getDb().execute({
-      sql: `
-        INSERT INTO contracted_services (service_id, client_id, provider_id, status, total_amount, notes)
-        VALUES (?, ?, ?, ?, ?, ?)
-        RETURNING *
-      `,
-      args: [data.service_id, data.client_id, data.provider_id, data.status, data.total_amount, data.notes || null],
-    }) as QueryResult;
-
-    return result.rows[0] as unknown as ContractedService;
-  }
-
-  static async findById(id: string): Promise<ContractedService | null> {
-    const result = await getDb().execute({
-      sql: 'SELECT * FROM contracted_services WHERE id = ?',
-      args: [id],
-    }) as QueryResult;
-
-    return (result.rows[0] as unknown as ContractedService) || null;
-  }
-
-  static async findByClientId(clientId: string): Promise<ContractedService[]> {
-    const result = await getDb().execute({
-      sql: 'SELECT * FROM contracted_services WHERE client_id = ? ORDER BY contracted_at DESC',
-      args: [clientId],
-    }) as QueryResult;
-
-    return result.rows as unknown as ContractedService[];
-  }
-
-  static async findByProviderId(providerId: string): Promise<ContractedService[]> {
-    const result = await getDb().execute({
-      sql: 'SELECT * FROM contracted_services WHERE provider_id = ? ORDER BY contracted_at DESC',
-      args: [providerId],
-    }) as QueryResult;
-
-    return result.rows as unknown as ContractedService[];
-  }
-
-  static async findByStatus(status: string): Promise<ContractedService[]> {
-    const result = await getDb().execute({
-      sql: 'SELECT * FROM contracted_services WHERE status = ? ORDER BY contracted_at DESC',
-      args: [status],
-    }) as QueryResult;
-
-    return result.rows as unknown as ContractedService[];
-  }
-
-  static async findAll(): Promise<ContractedService[]> {
-    const result = await getDb().execute('SELECT * FROM contracted_services ORDER BY contracted_at DESC') as QueryResult;
-    return result.rows as unknown as ContractedService[];
-  }
-
-  static async update(id: string, data: UpdateContractedService): Promise<ContractedService | null> {
-    const fields = Object.keys(data).filter(key => data[key as keyof UpdateContractedService] !== undefined);
-    if (fields.length === 0) return null;
-
-    const setClause = fields.map(field => `${field} = ?`).join(', ');
-    const values = fields.map(field => data[field as keyof UpdateContractedService]).filter(v => v !== undefined);
-
-    const result = await getDb().execute({
-      sql: `UPDATE contracted_services SET ${setClause} WHERE id = ? RETURNING *`,
-      args: [...values, id],
-    }) as QueryResult;
-
-    return (result.rows[0] as unknown as ContractedService) || null;
-  }
-
-  static async delete(id: string): Promise<boolean> {
-    const result = await getDb().execute({
-      sql: 'DELETE FROM contracted_services WHERE id = ?',
-      args: [id],
-    }) as QueryResult;
-
-    return result.rowsAffected > 0;
-  }
-
-  // Método específico para completar um serviço
-  static async completeService(id: string): Promise<ContractedService | null> {
-    const result = await getDb().execute({
-      sql: `
-        UPDATE contracted_services 
-        SET status = 'completed', completed_at = CURRENT_TIMESTAMP 
-        WHERE id = ? 
-        RETURNING *
-      `,
-      args: [id],
-    }) as QueryResult;
-
-    return (result.rows[0] as unknown as ContractedService) || null;
-  }
-
-  // Método para buscar serviços com informações detalhadas (JOIN)
   static async findWithDetails(id: string): Promise<unknown | null> {
-    const result = await getDb().execute({
-      sql: `
-        SELECT 
-          cs.*,
-          s.title as service_title,
-          s.description as service_description,
-          s.price as service_price,
-          s.category as service_category,
-          c.name as client_name,
-          c.email as client_email,
-          sp.name as provider_name,
-          sp.email as provider_email
-        FROM contracted_services cs
-        JOIN services s ON cs.service_id = s.id
-        JOIN clients c ON cs.client_id = c.id
-        JOIN service_providers sp ON cs.provider_id = sp.id
-        WHERE cs.id = ?
-      `,
-      args: [id],
-    }) as QueryResult;
+    try {
+      const result = await getDb().execute({
+        sql: `
+          SELECT 
+            sc.*,
+            c.name as client_name,
+            c.email as client_email,
+            sp.name as provider_name,
+            sp.email as provider_email,
+            sp.category as provider_category
+          FROM service_contracts sc
+          JOIN clients c ON sc.client_id = c.id
+          JOIN service_providers sp ON sc.provider_id = sp.id
+          WHERE sc.id = ?
+        `,
+        args: [id],
+      }) as QueryResult;
 
-    return result.rows[0] || null;
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('❌ Erro ao buscar service contract com detalhes:', error);
+      return null;
+    }
   }
 } 
