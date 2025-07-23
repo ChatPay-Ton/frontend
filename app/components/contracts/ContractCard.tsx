@@ -57,20 +57,20 @@ const ContractCard: React.FC<ContractCardProps> = ({ contract }) => {
   };
 
   // Função para traduzir escrow status
-  const translateEscrowStatus = (escrowStatus: number) => {
-    switch (escrowStatus) {
-      case 0:
-        return 'Aguardando';
-      case 1:
-        return 'Cliente Confirmou';
-      case 2:
-        return 'Prestador Confirmou';
-      case 3:
-        return 'Ambos Confirmaram';
-      default:
-        return 'Desconhecido';
-    }
-  };
+  // const translateEscrowStatus = (escrowStatus: number) => {
+  //   switch (escrowStatus) {
+  //     case 0:
+  //       return 'Aguardando';
+  //     case 1:
+  //       return 'Cliente Confirmou';
+  //     case 2:
+  //       return 'Prestador Confirmou';
+  //     case 3:
+  //       return 'Ambos Confirmaram';
+  //     default:
+  //       return 'Desconhecido';
+  //   }
+  // };
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
