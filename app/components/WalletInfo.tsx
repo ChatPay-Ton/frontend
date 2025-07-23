@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useTonAuth } from '../hooks/useTonAuth';
+import { useTonBalance } from '../hooks/useTonBalance';
 
 interface WalletInfoProps {
   className?: string;
@@ -9,6 +10,7 @@ interface WalletInfoProps {
 
 const WalletInfo: React.FC<WalletInfoProps> = ({ className = '' }) => {
   const { isConnected, address, wallet } = useTonAuth();
+  const balance = useTonBalance(address);
 
   if (!isConnected || !address) {
     return null;
@@ -36,6 +38,7 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ className = '' }) => {
       {wallet && (
         <div className="mt-2 text-xs text-gray-500">
           <p>Carteira: {wallet.device.appName}</p>
+          <p>Saldo: {balance?.toFixed(2)} TON</p>
         </div>
       )}
     </div>
