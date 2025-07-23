@@ -246,4 +246,36 @@ export const filterServiceProviders = (
     return matchesQuery && matchesCategory && matchesLocation &&
       matchesPrice && matchesRating && matchesAvailability;
   });
-}; 
+};
+
+// ============= SERVICE CONTRACTS (TON ESCROW) =============
+
+export interface ServiceContract {
+  id: string; // Endereço do contrato escrow TON
+  client: string;
+  provider: string;
+  provider_category: string;
+  total_amount: number; // Valor em TON
+  status: 'created' | 'deposited' | 'client_confirmed' | 'provider_confirmed' | 'completed' | 'cancelled';
+  transaction_hash?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateServiceContract {
+  id: string; // Endereço do contrato escrow
+  client_id: string;
+  provider_id: string;
+  transaction_hash?: string;
+  total_amount: number;
+}
+
+export interface UpdateServiceContract {
+  status?: 'created' | 'deposited' | 'client_confirmed' | 'provider_confirmed' | 'completed' | 'cancelled';
+  escrow_status?: number;
+  transaction_hash?: string;
+}
+
+// ============= CONSTANTES =============
+
+// Opções de categoria 
