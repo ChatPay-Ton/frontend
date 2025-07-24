@@ -36,7 +36,7 @@ export class ServiceProviderService {
       const transaction = await getDb().transaction() as DatabaseTransaction;
 
       try {
-        // 1. Inserir dados do prestador
+        // 1. Inserir dados do profissional
         const providerResult = await transaction.execute({
           sql: `
             INSERT INTO service_providers (id, name, email, phone, description, category, wallet_address, hourly_rate, city, state, country, experience)
@@ -60,7 +60,7 @@ export class ServiceProviderService {
         });
 
         const provider = providerResult.rows[0] as unknown as ServiceProvider;
-        console.log("providerResult", providerResult);
+        console.log("providerResult", provider);
 
         // 2. Inserir dados de disponibilidade
         if (data.availability && data.availability.length > 0) {
@@ -85,7 +85,7 @@ export class ServiceProviderService {
         throw error;
       }
     } catch (error) {
-      console.error('Erro ao criar prestador:', error);
+      console.error('Erro ao criar profissional:', error);
       throw error;
     }
   }
@@ -101,7 +101,7 @@ export class ServiceProviderService {
 
   static async findByWalletAddress(walletAddress: string): Promise<ServiceProvider | null> {
     try {
-      console.log('🔍 Buscando prestador por wallet:', walletAddress);
+      console.log('🔍 Buscando profissional por wallet:', walletAddress);
 
       const result = await getDb().execute({
         sql: 'SELECT * FROM service_providers WHERE wallet_address = ?',
@@ -114,16 +114,16 @@ export class ServiceProviderService {
       });
 
       if (result.rows.length === 0) {
-        console.log('❌ Nenhum prestador encontrado para wallet:', walletAddress);
+        console.log('❌ Nenhum profissional encontrado para wallet:', walletAddress);
         return null;
       }
 
       const provider = result.rows[0] as unknown as ServiceProvider;
-      console.log('✅ Prestador encontrado:', provider);
+      console.log('✅ Profissional encontrado:', provider);
 
       return provider;
     } catch (error) {
-      console.error('❌ Erro ao buscar prestador por wallet:', error);
+      console.error('❌ Erro ao buscar profissional por wallet:', error);
       return null;
     }
   }
@@ -168,15 +168,15 @@ export class ServiceProviderService {
 
       return result.rows as unknown as ServiceProvider[];
     } catch (error) {
-      console.error('Erro ao buscar prestadores:', error);
+      console.error('Erro ao buscar profissionais:', error);
       return []; // Retornar array vazio em caso de erro
     }
   }
 
-  // Método para buscar um prestador específico com disponibilidade completa
+  // Método para buscar um profissional específico com disponibilidade completa
   static async findByIdWithAvailability(id: string): Promise<(Omit<ServiceProvider, 'availability'> & { availability: string[] }) | null> {
     try {
-      // Buscar dados do prestador
+      // Buscar dados do profissional
       const providerResult = await getDb().execute({
         sql: `
           SELECT * FROM service_providers 
@@ -189,7 +189,7 @@ export class ServiceProviderService {
         return null;
       }
 
-      // Buscar disponibilidade do prestador
+      // Buscar disponibilidade do profissional
       const availabilityResult = await getDb().execute({
         sql: `
           SELECT day_of_week FROM provider_availability 
@@ -210,7 +210,7 @@ export class ServiceProviderService {
         availability: availabilityArray,
       };
     } catch (error) {
-      console.error('Erro ao buscar prestador:', error);
+      console.error('Erro ao buscar profissional:', error);
       return null;
     }
   }
@@ -577,10 +577,11 @@ export class ServiceContractService {
   static async findByClientId(clientId: string): Promise<ServiceContract[]> {
     try {
       const result = await getDb().execute({
-        sql: `SELECT sc.id, sc.client_id AS client, sp.name AS provider, sp.category AS provider_category,
+        sql: `SELECT sc.id, c.name AS client, sp.name AS provider, sp.category AS provider_category,
               sc.total_amount, sc.status, sc.transaction_hash, sc.created_at, sc.updated_at
               FROM service_contracts AS sc
               INNER JOIN service_providers AS sp ON sp.id = sc.provider_id
+              INNER JOIN clients AS c ON c.id = sc.client_id
               WHERE sc.client_id = ?
               ORDER BY sc.created_at DESC `,
         args: [clientId],
@@ -597,13 +598,20 @@ export class ServiceContractService {
   static async findByProviderId(providerId: string): Promise<ServiceContract[]> {
     try {
       const result = await getDb().execute({
-        sql: 'SELECT * FROM service_contracts WHERE provider_id = ? ORDER BY created_at DESC',
+        sql: `SELECT sc.id, c.name AS client, sp.name AS provider, sp.category AS provider_category,
+              sc.total_amount, sc.status, sc.transaction_hash, sc.created_at, sc.updated_at
+              FROM service_contracts AS sc
+              INNER JOIN service_providers AS sp ON sp.id = sc.provider_id
+              INNER JOIN clients AS c ON c.id = sc.client_id
+              WHERE sc.provider_id = ?
+              ORDER BY sc.created_at DESC `,
         args: [providerId],
       }) as QueryResult;
 
+      console.log('result provider contracts', result.rows);
       return result.rows as unknown as ServiceContract[];
     } catch (error) {
-      console.error('❌ Erro ao buscar service contracts por prestador:', error);
+      console.error('❌ Erro ao buscar service contracts por profissional:', error);
       return [];
     }
   }
@@ -637,14 +645,14 @@ export class ServiceContractService {
         values.push(data.status);
       }
 
-      if (data.escrow_status !== undefined) {
-        fields.push('escrow_status = ?');
-        values.push(data.escrow_status);
+      if (data.confirmed_by_client !== undefined) {
+        fields.push('confirmed_by_client = ?');
+        values.push(data.confirmed_by_client);
       }
 
-      if (data.transaction_hash !== undefined) {
-        fields.push('transaction_hash = ?');
-        values.push(data.transaction_hash);
+      if (data.confirmed_by_provider !== undefined) {
+        fields.push('confirmed_by_provider = ?');
+        values.push(data.confirmed_by_provider);
       }
 
       if (fields.length === 0) {

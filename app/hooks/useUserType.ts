@@ -45,7 +45,7 @@ export const useUserType = (): UserTypeData => {
       setError(null);
 
       try {
-        // Buscar dados do cliente e prestador simultaneamente
+        // Buscar dados do cliente e profissional simultaneamente
         const [clientResult, providerResult] = await Promise.allSettled([
           ClientService.findByWalletAddress(address),
           ServiceProviderService.findByWalletAddress(address)
@@ -72,14 +72,19 @@ export const useUserType = (): UserTypeData => {
 
         if (client) {
           console.log('✅ Usuário identificado como CLIENTE:', client);
+          console.log('✅ Usuário identificado como PROFISSIONAL:', provider);
           setUserType('client');
           setUserData(client);
         } else if (provider) {
-          console.log('✅ Usuário identificado como PRESTADOR:', provider);
+          console.log('✅ Usuário identificado como PROFISSIONAL:', provider);
           setUserType('provider');
           setUserData(provider);
         } else {
-          console.log('🆕 Usuário NOVO - não encontrado nas tabelas');
+          console.log('🆕 Usuário NOVO - não encontrado nas tabelas', {
+            address,
+            client,
+            provider
+          });
           // Usuário novo - wallet conectada mas não está em nenhuma tabela
           setUserType('new');
           setUserData(null);

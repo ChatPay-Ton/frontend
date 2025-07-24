@@ -77,7 +77,7 @@ const UserTypeSelector: React.FC = () => {
               </div>
             </button>
 
-            {/* Prestador */}
+            {/* Profissional */}
             <button
               onClick={handleSelectProvider}
               disabled={isLoading}

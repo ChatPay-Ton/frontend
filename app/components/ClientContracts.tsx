@@ -139,7 +139,7 @@ const ClientContracts: React.FC = () => {
         {contractsCount > 0 ? (
           <div className="space-y-6">
             {contracts.map((contract) => (
-              <ContractCard key={contract.id} contract={contract} />
+              <ContractCard key={contract.id} contract={contract} onContractUpdate={refetch} />
             ))}
           </div>
         ) : (
@@ -155,13 +155,13 @@ const ClientContracts: React.FC = () => {
                 Nenhum contrato encontrado
               </h3>
               <p className="text-gray-600 mb-6">
-                Você ainda não possui contratos. Comece procurando por prestadores de serviços.
+                Você ainda não possui contratos. Comece procurando por profissionais.
               </p>
               <button
                 onClick={() => setCurrentScreen('search')}
                 className="px-6 py-2 bg-navy text-white rounded-lg hover:bg-navy-dark transition-colors"
               >
-                Buscar Prestadores
+                Buscar Profissionais
               </button>
             </div>
           </div>

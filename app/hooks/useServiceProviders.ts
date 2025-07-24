@@ -15,11 +15,11 @@ export const useServiceProviders = () => {
 
     try {
       const result = await ServiceProviderService.findAll();
-      console.log('🔍 Prestadores encontrados:', result.length);
+      console.log('🔍 Profissionais encontrados:', result.length);
       setProviders(result);
     } catch (err) {
-      console.error('❌ Erro ao buscar prestadores:', err);
-      setError(err instanceof Error ? err.message : 'Erro ao buscar prestadores');
+      console.error('❌ Erro ao buscar profissionais:', err);
+      setError(err instanceof Error ? err.message : 'Erro ao buscar profissionais');
       setProviders([]);
     } finally {
       setLoading(false);
@@ -55,11 +55,11 @@ export const useServiceProvidersByCategory = (category: string) => {
 
     try {
       const result = await ServiceProviderService.findByCategory(category);
-      console.log(`🔍 Prestadores encontrados para categoria "${category}":`, result.length);
+      console.log(`🔍 Profissionais encontrados para categoria "${category}":`, result.length);
       setProviders(result);
     } catch (err) {
-      console.error('❌ Erro ao buscar prestadores por categoria:', err);
-      setError(err instanceof Error ? err.message : 'Erro ao buscar prestadores');
+      console.error('❌ Erro ao buscar profissionais por categoria:', err);
+      setError(err instanceof Error ? err.message : 'Erro ao buscar profissionais');
       setProviders([]);
     } finally {
       setLoading(false);
@@ -95,11 +95,11 @@ export const useServiceProvider = (id: string) => {
 
     try {
       const result = await ServiceProviderService.findById(id);
-      console.log('🔍 Prestador encontrado:', result);
+      console.log('🔍 Profissional encontrado:', result);
       setProvider(result);
     } catch (err) {
-      console.error('❌ Erro ao buscar prestador:', err);
-      setError(err instanceof Error ? err.message : 'Erro ao buscar prestador');
+      console.error('❌ Erro ao buscar profissional:', err);
+      setError(err instanceof Error ? err.message : 'Erro ao buscar profissional');
       setProvider(null);
     } finally {
       setLoading(false);
@@ -135,11 +135,11 @@ export const useServiceProviderByWallet = (walletAddress: string) => {
 
     try {
       const result = await ServiceProviderService.findByWalletAddress(walletAddress);
-      console.log('🔍 Prestador encontrado por wallet:', result);
+      console.log('🔍 Profissional encontrado por wallet:', result);
       setProvider(result);
     } catch (err) {
-      console.error('❌ Erro ao buscar prestador por wallet:', err);
-      setError(err instanceof Error ? err.message : 'Erro ao buscar prestador');
+      console.error('❌ Erro ao buscar profissional por wallet:', err);
+      setError(err instanceof Error ? err.message : 'Erro ao buscar profissional');
       setProvider(null);
     } finally {
       setLoading(false);

@@ -34,7 +34,7 @@ const SearchScreen: React.FC = () => {
   const [selectedProvider, setSelectedProvider] = useState<ServiceProvider | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Buscar prestadores com filtros aplicados
+  // Buscar profissionais com filtros aplicados
   const { providers: filteredProviders, loading, error, refetch } = useServiceProviderSearch(filters);
 
   // Handlers
@@ -57,8 +57,8 @@ const SearchScreen: React.FC = () => {
 
   const handleContract = (provider: ServiceProvider) => {
     // TODO: Implementar lógica de contratação
-    console.log('Contratar prestador:', provider);
-    alert(`Funcionalidade de contratação será implementada em breve!\n\nPrestador: ${provider.name}\nCategoria: ${provider.category}\nPreço: R$ ${provider.hourly_rate}/hora`);
+    console.log('Contratar profissional:', provider);
+    alert(`Funcionalidade de contratação será implementada em breve!\n\nProfissional: ${provider.name}\nCategoria: ${provider.category}\nPreço: R$ ${provider.hourly_rate}/hora`);
   };
 
   const handleClearFilters = () => {
@@ -98,7 +98,7 @@ const SearchScreen: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <h1 className="text-2xl font-bold text-navy">Buscar Prestadores</h1>
+              <h1 className="text-2xl font-bold text-navy">Buscar Profissionais</h1>
             </div>
           </div>
         </div>
@@ -106,7 +106,7 @@ const SearchScreen: React.FC = () => {
           <div className="flex items-center justify-center min-h-64">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-navy mx-auto mb-4"></div>
-              <p className="text-gray-600">Carregando prestadores...</p>
+              <p className="text-gray-600">Carregando profissionais...</p>
             </div>
           </div>
         </div>
@@ -128,7 +128,7 @@ const SearchScreen: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <h1 className="text-2xl font-bold text-navy">Buscar Prestadores</h1>
+              <h1 className="text-2xl font-bold text-navy">Buscar Profissionais</h1>
             </div>
           </div>
         </div>
@@ -140,7 +140,7 @@ const SearchScreen: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
               </div>
-              <p className="text-gray-600 mb-4">Erro ao carregar prestadores: {error}</p>
+              <p className="text-gray-600 mb-4">Erro ao carregar profissionais: {error}</p>
               <button
                 onClick={refetch}
                 className="px-4 py-2 bg-navy text-white rounded-lg hover:bg-opacity-90 transition-colors"
@@ -169,10 +169,10 @@ const SearchScreen: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <h1 className="text-2xl font-bold text-navy">Buscar Prestadores</h1>
+              <h1 className="text-2xl font-bold text-navy">Buscar Profissionais</h1>
             </div>
             <div className="text-sm text-gray-600">
-              {filteredProviders.length} prestador{filteredProviders.length !== 1 ? 'es' : ''} encontrado{filteredProviders.length !== 1 ? 's' : ''}
+              {filteredProviders.length} profissional{filteredProviders.length !== 1 ? 'es' : ''} encontrado{filteredProviders.length !== 1 ? 's' : ''}
             </div>
           </div>
 

@@ -22,13 +22,13 @@ const EmptyState: React.FC<EmptyStateProps> = ({ hasSearchTerm, onClearFilters }
       </div>
 
       <h3 className="text-lg font-semibold text-gray-900 mb-2">
-        {hasSearchTerm ? 'Nenhum resultado encontrado' : 'Nenhum prestador disponível'}
+        {hasSearchTerm ? 'Nenhum resultado encontrado' : 'Nenhum profissional disponível'}
       </h3>
 
       <p className="text-gray-600 mb-6 max-w-md">
         {hasSearchTerm
-          ? 'Não encontramos prestadores que correspondam aos seus critérios de busca. Tente ajustar os filtros ou buscar por outros termos.'
-          : 'Não há prestadores disponíveis no momento. Tente novamente mais tarde.'}
+          ? 'Não encontramos profissionais que correspondam aos seus critérios de busca. Tente ajustar os filtros ou buscar por outros termos.'
+          : 'Não há profissionais disponíveis no momento. Tente novamente mais tarde.'}
       </p>
 
       {hasSearchTerm && (
@@ -56,7 +56,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({ hasSearchTerm, onClearFilters }
         <div className="text-sm text-gray-500 space-y-2">
           <p>Enquanto isso, você pode:</p>
           <ul className="space-y-1">
-            <li>• Cadastrar-se como prestador</li>
+            <li>• Cadastrar-se como profissional</li>
             <li>• Verificar novamente mais tarde</li>
             <li>• Entrar em contato conosco</li>
           </ul>

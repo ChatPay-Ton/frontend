@@ -1,7 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ServiceProvider } from '../../types/database';
+import { useTon } from '../../hooks/useTon';
+import { isValidTonAddress } from '../../lib/ton';
+import { ServiceContractService } from '../../lib/database/service';
+import { CreateServiceContract } from '../../types/database';
+import { toNano } from '@ton/core';
 
 interface ServiceProviderModalProps {
   provider: ServiceProvider | null;
@@ -16,6 +21,18 @@ const ServiceProviderModal: React.FC<ServiceProviderModalProps> = ({
   onClose,
   onContract
 }) => {
+  const {
+    createEscrow,
+    isLoading: hookLoading,
+    isConnected,
+    userAddress
+  } = useTon();
+
+  // Estados locais para controle da contratação
+  const [isContracting, setIsContracting] = useState(false);
+  const [contractError, setContractError] = useState<string | null>(null);
+  const [contractSuccess, setContractSuccess] = useState(false);
+
   if (!isOpen || !provider) return null;
 
   const formatExperience = (experience: string) => {
@@ -63,6 +80,109 @@ const ServiceProviderModal: React.FC<ServiceProviderModalProps> = ({
     );
   };
 
+  /**
+   * Função principal para contratar o Profissional
+   */
+  const handleContractProvider = async () => {
+    // Limpar estados anteriores
+    setContractError(null);
+    setContractSuccess(false);
+
+    // Verificar se carteira está conectada
+    if (!isConnected || !userAddress) {
+      setContractError('Por favor, conecte sua carteira TON primeiro');
+      return;
+    }
+
+    console.log('wallet address', provider.wallet_address);
+
+    // Verificar se profissional tem wallet_address
+    if (!provider.wallet_address) {
+      setContractError('Profissional não possui endereço de carteira configurado');
+      return;
+    }
+
+    // Validar endereço do profissional usando @ton/core
+    if (!isValidTonAddress(provider.wallet_address)) {
+      setContractError('Endereço da carteira do profissional é inválido');
+      return;
+    }
+
+    // Verificar se não está tentando contratar a si mesmo
+    if (provider.wallet_address === userAddress) {
+      setContractError('Você não pode contratar um profissional a si mesmo');
+      return;
+    }
+
+    try {
+      setIsContracting(true);
+      console.log('🎯 Iniciando contratação:', {
+        client: userAddress,
+        provider: provider.wallet_address,
+        amount: provider.hourly_rate + ' TON',
+        factory: 'kQCQkWNWU91_i2W3zwxheZn5ya_gg1Nv7J5lZeVxCOtLNs8V'
+      });
+
+      // 1. Criar contrato de escrow na blockchain TON
+      const escrowResult = await createEscrow({
+        providerAddress: provider.wallet_address,
+        escrowAmountTon: toNano(provider.hourly_rate).toString()
+      });
+
+      if (!escrowResult.success) {
+        throw new Error(escrowResult.error || 'Falha ao criar escrow');
+      }
+
+      console.log('✅ Escrow criado na blockchain:', escrowResult);
+
+      // 2. Preparar dados para salvar no banco
+      // Usar hash da transação como ID (será substituído pelo endereço real do contrato quando disponível)
+      const contractData: CreateServiceContract = {
+        id: `escrow_${escrowResult.transactionHash}`, // Usar hash da transação
+        client_id: userAddress,
+        provider_id: provider.id,
+        total_amount: provider.hourly_rate,
+        transaction_hash: escrowResult.transactionHash
+      };
+
+      // 3. Salvar contrato no banco Turso
+      try {
+        const savedContract = await ServiceContractService.create(contractData);
+        console.log('✅ Contrato salvo no banco:', savedContract);
+      } catch (dbError) {
+        console.warn('⚠️ Aviso: Erro ao salvar no banco, mas escrow foi criado:', dbError);
+      }
+
+      setContractSuccess(true);
+      onContract(provider);
+
+      console.log('🎉 Contratação concluída com sucesso!');
+      console.log('📋 Detalhes:', {
+        escrowAddress: contractData.id,
+        transactionHash: escrowResult.transactionHash,
+        amountTon: provider.hourly_rate,
+        factoryAddress: 'kQCQkWNWU91_i2W3zwxheZn5ya_gg1Nv7J5lZeVxCOtLNs8V'
+      });
+
+    } catch (error) {
+      console.error('❌ Erro na contratação:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao contratar profissional';
+      setContractError(errorMessage);
+    } finally {
+      setIsContracting(false);
+    }
+  };
+
+  /**
+   * Limpar mensagem de erro
+   */
+  const clearError = () => {
+    setContractError(null);
+  };
+
+  // Estado de loading geral
+  const isLoading = isContracting || hookLoading;
+
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex min-h-screen items-center justify-center p-4">
@@ -76,7 +196,7 @@ const ServiceProviderModal: React.FC<ServiceProviderModalProps> = ({
         <div className="relative bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b">
-            <h2 className="text-xl font-semibold text-navy">Perfil do Prestador</h2>
+            <h2 className="text-xl font-semibold text-navy">Perfil do Profissional</h2>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -114,7 +234,7 @@ const ServiceProviderModal: React.FC<ServiceProviderModalProps> = ({
               </div>
               <div className="text-right">
                 <div className="text-3xl font-bold text-navy">
-                  R$ {provider.hourly_rate.toFixed(2)}
+                  {provider.hourly_rate.toFixed(2)} TON
                 </div>
                 <div className="text-sm text-gray-500">por hora</div>
               </div>
@@ -180,18 +300,79 @@ const ServiceProviderModal: React.FC<ServiceProviderModalProps> = ({
               <h4 className="text-lg font-semibold text-navy mb-2">Disponibilidade</h4>
               <p className="text-gray-700">{formatAvailabilityDays(provider.days_of_week || '')}</p>
             </div>
+
+            {/* Mensagens de status */}
+            {!isConnected && (
+              <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-yellow-800 text-sm">
+                  ⚠️ Conecte sua carteira TON para contratar este profissional
+                </p>
+              </div>
+            )}
+
+            {contractSuccess && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-green-800 text-sm font-medium">
+                  ✅ Contrato criado com sucesso!
+                </p>
+              </div>
+            )}
+
+            {contractError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <p className="text-red-800 text-sm">{contractError}</p>
+                  <button
+                    onClick={clearError}
+                    className="text-red-600 hover:text-red-800"
+                    aria-label="Fechar mensagem de erro"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Footer */}
           <div className="bg-gray-50 px-6 py-4 flex justify-end space-x-3">
             <button
-              onClick={() => {
-                onContract(provider);
-                onClose();
-              }}
-              className='flex-1 btn-primary'
+              onClick={handleContractProvider}
+              disabled={isLoading || contractSuccess || !isConnected}
+              className={`flex-1 py-2 px-4 rounded-lg transition-colors font-medium ${contractSuccess
+                ? 'bg-green-500 text-white cursor-default'
+                : isLoading
+                  ? 'bg-gray-400 text-white cursor-not-allowed'
+                  : !isConnected
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'btn-primary'
+                }`}
             >
-              Contratar
+              {contractSuccess ? (
+                <span className="flex items-center justify-center">
+                  <svg className="w-5 h-5 mr-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  Contratado com Sucesso
+                </span>
+              ) : isLoading ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Criando escrow...
+                </span>
+              ) : (
+                <span className="flex items-center justify-center">
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
+                  </svg>
+                  Contratar
+                </span>
+              )}
             </button>
             <button
               onClick={onClose}

@@ -59,7 +59,7 @@ const SuccessMessage: React.FC<SuccessMessageProps> = ({ onReset, providerName, 
 							onClick={onReset}
 							className="w-full bg-white text-purple font-semibold py-3 px-6 rounded-lg transition-all hover:bg-gray-50"
 						>
-							{userType === 'provider' ? 'Cadastrar Outro Prestador' : 'Cadastrar Outro Cliente'}
+							{userType === 'provider' ? 'Cadastrar outro Profissional' : 'Cadastrar outro Cliente'}
 						</button>
 
 						<button
@@ -111,7 +111,7 @@ const SuccessMessage: React.FC<SuccessMessageProps> = ({ onReset, providerName, 
 							Central de Ajuda
 						</a>
 						<a href="#" className="text-blue underline">
-							Guia do Prestador
+							Guia do Profissional
 						</a>
 						<a href="#" className="text-turquoise underline">
 							Comunidade

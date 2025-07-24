@@ -6,7 +6,7 @@ import WalletInfo from './WalletInfo';
 import type { ServiceProvider } from '../types/database';
 
 const ProviderDashboard: React.FC = () => {
-  const { userData, logout } = useUser();
+  const { userData, logout, setCurrentScreen } = useUser();
   const providerData = userData as ServiceProvider;
 
   return (
@@ -23,10 +23,10 @@ const ProviderDashboard: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-navy">
-                  Olá, {providerData?.name || 'Prestador'}!
+                  Olá, {providerData?.name || 'Profissional'}!
                 </h1>
                 <p className="text-sm text-gray-600">
-                  Bem-vindo ao seu painel de prestador
+                  Bem-vindo ao seu painel de profissional
                 </p>
               </div>
             </div>
@@ -47,7 +47,7 @@ const ProviderDashboard: React.FC = () => {
         </div>
 
         {/* Informações do perfil */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        {/* <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <h3 className="text-lg font-semibold text-navy mb-4">
             Seu Perfil
           </h3>
@@ -78,7 +78,7 @@ const ProviderDashboard: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
                 <p className="text-sm text-yellow-800">
-                  <strong>Debug:</strong> Dados do prestador não encontrados
+                  <strong>Debug:</strong> Dados do profissional não encontrados
                 </p>
               </div>
               <div className="mt-2 text-xs text-yellow-700">
@@ -86,7 +86,7 @@ const ProviderDashboard: React.FC = () => {
               </div>
             </div>
           )}
-        </div>
+        </div> */}
 
         {/* Ações principais */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -117,22 +117,25 @@ const ProviderDashboard: React.FC = () => {
                 </svg>
               </div>
               <h3 className="text-lg font-semibold text-navy">
-                Propostas Recebidas
+                Meus Contratos
               </h3>
             </div>
             <p className="text-sm text-gray-600 mb-4">
-              Visualize e responda às propostas de clientes
+              Visualize e gerencie seus contratos ativos
             </p>
-            <button className="w-full btn-secondary">
-              Ver Propostas
+            <button
+              onClick={() => setCurrentScreen('provider-contracts')}
+              className="w-full btn-secondary"
+            >
+              Ver Contratos
             </button>
           </div>
         </div>
 
         {/* Estatísticas */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        {/* <div className="bg-white rounded-lg shadow-sm p-6">
           <h3 className="text-lg font-semibold text-navy mb-4">
-            Estatísticas do Prestador
+            Estatísticas do Profissional
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="text-center p-4 bg-gray-50 rounded-lg">
@@ -152,7 +155,7 @@ const ProviderDashboard: React.FC = () => {
               <div className="text-sm text-gray-600">Ganhos Totais</div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

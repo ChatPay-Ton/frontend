@@ -10,22 +10,22 @@ export const useServiceProviderSearch = (filters: SearchFilters) => {
   const [error, setError] = useState<string | null>(null);
   const [allProviders, setAllProviders] = useState<ServiceProvider[]>([]);
 
-  // Função para buscar todos os prestadores uma única vez
+  // Função para buscar todos os profissionais uma única vez
   const fetchAllProviders = useCallback(async () => {
     try {
       const result = await ServiceProviderService.findAll();
-      console.log('🔍 Todos os prestadores carregados:', result.length);
+      console.log('🔍 Todos os profissionais carregados:', result.length);
       setAllProviders(result);
       return result;
     } catch (err) {
-      console.error('❌ Erro ao buscar prestadores:', err);
-      setError(err instanceof Error ? err.message : 'Erro ao buscar prestadores');
+      console.error('❌ Erro ao buscar profissionais:', err);
+      setError(err instanceof Error ? err.message : 'Erro ao buscar profissionais');
       setAllProviders([]);
       return [];
     }
   }, []);
 
-  // Função para buscar prestadores com filtros aplicados
+  // Função para buscar profissionais com filtros aplicados
   const searchProviders = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -38,7 +38,7 @@ export const useServiceProviderSearch = (filters: SearchFilters) => {
         console.log('🔍 Buscando por categoria:', filters.category);
         providers = await ServiceProviderService.findByCategory(filters.category);
       } else {
-        // Se não há filtro de categoria, usar todos os prestadores
+        // Se não há filtro de categoria, usar todos os profissionais
         providers = allProviders.length > 0 ? allProviders : await fetchAllProviders();
       }
 
@@ -61,7 +61,7 @@ export const useServiceProviderSearch = (filters: SearchFilters) => {
     }
   }, [filters, allProviders, fetchAllProviders]);
 
-  // Carregar prestadores inicialmente
+  // Carregar profissionais inicialmente
   useEffect(() => {
     if (allProviders.length === 0) {
       fetchAllProviders().then(() => {

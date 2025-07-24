@@ -32,13 +32,13 @@ export const useTon = () => {
     }
 
     if (!params.providerAddress) {
-      const errorMsg = 'Endereço do prestador é obrigatório';
+      const errorMsg = 'Endereço do profissional é obrigatório';
       setError(errorMsg);
       return { success: false, error: errorMsg };
     }
 
     if (!isValidTonAddress(params.providerAddress)) {
-      const errorMsg = 'Endereço do prestador inválido';
+      const errorMsg = 'Endereço do profissional inválido';
       setError(errorMsg);
       return { success: false, error: errorMsg };
     }

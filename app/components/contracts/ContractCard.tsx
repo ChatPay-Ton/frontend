@@ -1,13 +1,18 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ServiceContract } from '../../types/database';
+import { ServiceContractService } from '@/app/lib/database/service';
 
 interface ContractCardProps {
   contract: ServiceContract;
+  isProvider?: boolean;
+  onContractUpdate?: () => void;
 }
 
-const ContractCard: React.FC<ContractCardProps> = ({ contract }) => {
+const ContractCard: React.FC<ContractCardProps> = ({ contract, isProvider = false, onContractUpdate }) => {
+  const [isConfirming, setIsConfirming] = useState(false);
+
   // Função para formatar data
   const formatDate = (dateString: string) => {
     try {
@@ -46,14 +51,55 @@ const ContractCard: React.FC<ContractCardProps> = ({ contract }) => {
   // Função para traduzir status
   const translateStatus = (status: string) => {
     const statusMap: Record<string, string> = {
+      pending: 'Aguardando',
       created: 'Criado',
       deposited: 'Depositado',
       client_confirmed: 'Cliente Confirmou',
-      provider_confirmed: 'Prestador Confirmou',
+      provider_confirmed: 'Profissional Confirmou',
       completed: 'Concluído',
       cancelled: 'Cancelado'
     };
     return statusMap[status] || status;
+  };
+
+  const confirmContract = async () => {
+    setIsConfirming(true);
+
+    if (isProvider) {
+      console.log('Provider confirm contract');
+      try {
+        const response = await ServiceContractService.update(contract.id, {
+          confirmed_by_provider: true,
+          status: 'provider_confirmed'
+        });
+        console.log('Contract confirmed', response);
+
+        // Chama o callback para atualizar os dados
+        if (onContractUpdate) {
+          onContractUpdate();
+        }
+      } catch (error) {
+        console.error('Error confirming contract', error);
+      }
+    } else {
+      console.log('Client confirm contract');
+      try {
+        const response = await ServiceContractService.update(contract.id, {
+          confirmed_by_client: true,
+          status: 'client_confirmed'
+        });
+        console.log('Contract confirmed', response);
+
+        // Chama o callback para atualizar os dados
+        if (onContractUpdate) {
+          onContractUpdate();
+        }
+      } catch (error) {
+        console.error('Error confirming contract', error);
+      }
+    }
+
+    setIsConfirming(false);
   };
 
   // Função para traduzir escrow status
@@ -64,7 +110,7 @@ const ContractCard: React.FC<ContractCardProps> = ({ contract }) => {
   //     case 1:
   //       return 'Cliente Confirmou';
   //     case 2:
-  //       return 'Prestador Confirmou';
+  //       return 'Profissional Confirmou';
   //     case 3:
   //       return 'Ambos Confirmaram';
   //     default:
@@ -105,17 +151,17 @@ const ContractCard: React.FC<ContractCardProps> = ({ contract }) => {
       {/* Informações do contrato */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div>
-          <p className="text-sm text-gray-600 mb-1">Prestador</p>
+          <p className="text-sm text-gray-600 mb-1">Profissional</p>
           <p className="font-medium text-gray-900">
-            {contract.provider}
+            {isProvider ? contract.client : contract.provider}
           </p>
         </div>
-        <div>
+        {!isProvider && <div>
           <p className="text-sm text-gray-600 mb-1">Categoria</p>
           <p className="font-medium text-gray-900">
             {contract.provider_category}
           </p>
-        </div>
+        </div>}
       </div>
 
       {/* Footer com ações */}
@@ -124,14 +170,21 @@ const ContractCard: React.FC<ContractCardProps> = ({ contract }) => {
           Atualizado: {formatDate(contract.updated_at)}
         </div>
         <div className="flex space-x-2">
-          <button className="text-sm text-navy hover:text-navy-dark font-medium">
-            Ver Detalhes
+          <button
+            onClick={confirmContract}
+            disabled={isConfirming}
+            className="btn-secondary text-sm text-white hover:text-navy-dark font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+          >
+            {isConfirming && (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+            )}
+            <span>{isConfirming ? 'Confirmando...' : 'Confirmar'}</span>
           </button>
-          {(contract.status === 'created' || contract.status === 'deposited') && (
+          {/* {(contract.status === 'created' || contract.status === 'deposited') && (
             <button className="text-sm bg-navy text-white px-3 py-1 rounded hover:bg-navy-dark transition-colors">
               Gerenciar
             </button>
-          )}
+          )} */}
         </div>
       </div>
     </div>

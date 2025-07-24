@@ -33,7 +33,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ filters, onSearchChange }) => {
 
       <input
         type="text"
-        placeholder="Buscar prestadores, serviços ou habilidades..."
+        placeholder="Buscar profissionais, serviços ou habilidades..."
         value={filters.query}
         onChange={handleInputChange}
         className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-turquoise focus:border-turquoise outline-none text-navy placeholder-gray-400"

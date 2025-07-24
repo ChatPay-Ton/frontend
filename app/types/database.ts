@@ -151,7 +151,7 @@ export interface CreateProviderAvailability {
   day_of_week: string;
 }
 
-// Interface para criar um prestador com disponibilidade
+// Interface para criar um profissional com disponibilidade
 export interface CreateServiceProviderWithAvailability {
   provider: CreateServiceProvider;
   availability: string[];
@@ -206,7 +206,7 @@ export const experienceOptions = [
   { value: "mais-10", label: "Mais de 10 anos" }
 ];
 
-// Função utilitária para filtrar prestadores
+// Função utilitária para filtrar profissionais
 export const filterServiceProviders = (
   providers: ServiceProvider[],
   filters: SearchFilters
@@ -233,7 +233,7 @@ export const filterServiceProviders = (
 
     // Filtro por disponibilidade
     const matchesAvailability = filters.availability.length === 0 || (() => {
-      // Verificar se o prestador está disponível nos dias solicitados
+      // Verificar se o profissional está disponível nos dias solicitados
       const providerAvailability = provider.days_of_week ?
         provider.days_of_week.split(',').map(day => day.trim()) :
         provider.availability ? provider.availability.split(',').map(day => day.trim()) : [];
@@ -271,9 +271,9 @@ export interface CreateServiceContract {
 }
 
 export interface UpdateServiceContract {
-  status?: 'created' | 'deposited' | 'client_confirmed' | 'provider_confirmed' | 'completed' | 'cancelled';
-  escrow_status?: number;
-  transaction_hash?: string;
+  status?: 'pending' | 'client_confirmed' | 'provider_confirmed' | 'completed' | 'cancelled';
+  confirmed_by_client?: boolean;
+  confirmed_by_provider?: boolean;
 }
 
 // ============= CONSTANTES =============

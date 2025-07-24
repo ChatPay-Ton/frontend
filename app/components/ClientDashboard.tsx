@@ -56,7 +56,7 @@ const ClientDashboard: React.FC = () => {
                 </svg>
               </div>
               <h3 className="text-lg font-semibold text-navy">
-                Buscar Prestadores
+                Buscar Profissionais
               </h3>
             </div>
             <p className="text-sm text-gray-600 mb-4">

@@ -27,7 +27,7 @@ const ProviderRegistration: React.FC = () => {
     }
 
     try {
-      // Criar dados do prestador com endereço da wallet
+      // Criar dados do profissional com endereço da wallet
       const providerData = {
         id: '',
         name: formData.name,
@@ -54,7 +54,7 @@ const ProviderRegistration: React.FC = () => {
       completeRegistration(providerData);
 
     } catch (error) {
-      console.error('Erro ao registrar prestador:', error);
+      console.error('Erro ao registrar profissional:', error);
     }
   };
 
@@ -108,7 +108,7 @@ const ProviderRegistration: React.FC = () => {
           {/* Título */}
           <div className="space-y-3">
             <h1 className="text-2xl font-bold text-navy">
-              Cadastro de Prestador
+              Cadastro de Profissional
             </h1>
             <p className="text-sm text-gray-600">
               Complete seu perfil para começar a oferecer serviços

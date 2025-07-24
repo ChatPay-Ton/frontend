@@ -172,18 +172,18 @@ export const useServiceProviderForm = () => {
 			// Tentar gravar no banco de dados Turso
 			try {
 				const createdProvider = await ServiceProviderService.create(serviceProviderData);
-				console.log('Prestador criado com sucesso no banco:', createdProvider);
+				console.log('Profissional criado com sucesso no banco:', createdProvider);
 				setIsSubmitted(true);
 			} catch (dbError) {
 				console.error('Erro ao gravar no banco de dados:', dbError);
 				// Mesmo com erro no banco, considerar como sucesso para o usuário
-				console.log('Dados do prestador (não gravados no banco):', serviceProviderData);
+				console.log('Dados do profissional (não gravados no banco):', serviceProviderData);
 				setIsSubmitted(true);
 			}
 
 		} catch (error) {
 			console.error('Erro ao processar formulário:', error);
-			setErrors({ submit: 'Erro ao cadastrar prestador. Tente novamente.' });
+			setErrors({ submit: 'Erro ao cadastrar profissional. Tente novamente.' });
 		} finally {
 			setIsSubmitting(false);
 		}
