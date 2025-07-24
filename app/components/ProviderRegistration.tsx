@@ -5,6 +5,7 @@ import { useUser } from '../contexts/UserContext';
 import { useServiceProviderForm } from '../hooks/useServiceProviderForm';
 import { useTonAuth } from '../hooks/useTonAuth';
 import WalletInfo from './WalletInfo';
+import { countries } from '../data/countries';
 
 const ProviderRegistration: React.FC = () => {
   const { completeRegistration, goBackToUserTypeSelection } = useUser();
@@ -341,17 +342,20 @@ const ProviderRegistration: React.FC = () => {
                   <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">
                     País
                   </label>
-                  <input
-                    type="text"
+                  <select
                     id="country"
                     name="country"
                     value={formData.country}
                     onChange={handleInputChange}
                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple ${errors.country ? 'border-red-500' : 'border-gray-300'
                       }`}
-                    placeholder="Ex: Brasil"
                     required
-                  />
+                  >
+                    <option value="">Selecione um país</option>
+                    {countries.map(country => (
+                      <option key={country.code} value={country.name}>{country.name}</option>
+                    ))}
+                  </select>
                   {errors.country && (
                     <p className="text-red-500 text-xs mt-1">{errors.country}</p>
                   )}
