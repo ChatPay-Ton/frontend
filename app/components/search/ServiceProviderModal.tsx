@@ -120,7 +120,7 @@ const ServiceProviderModal: React.FC<ServiceProviderModalProps> = ({
         client: userAddress,
         provider: provider.wallet_address,
         amount: provider.hourly_rate + ' TON',
-        factory: 'kQCQkWNWU91_i2W3zwxheZn5ya_gg1Nv7J5lZeVxCOtLNs8V'
+        factory: 'EQDu_xcpGtFeApo5bl9y5O9-tPXN1EJo7kkIlSczirLBljE4'
       });
 
       // 1. Criar contrato de escrow na blockchain TON
@@ -161,7 +161,7 @@ const ServiceProviderModal: React.FC<ServiceProviderModalProps> = ({
         escrowAddress: contractData.id,
         transactionHash: escrowResult.transactionHash,
         amountTon: provider.hourly_rate,
-        factoryAddress: 'kQCQkWNWU91_i2W3zwxheZn5ya_gg1Nv7J5lZeVxCOtLNs8V'
+        factoryAddress: 'EQDu_xcpGtFeApo5bl9y5O9-tPXN1EJo7kkIlSczirLBljE4'
       });
 
     } catch (error) {

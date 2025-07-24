@@ -3,7 +3,7 @@
 import { toNano, Address, beginCell } from '@ton/core';
 
 // ============= ENDEREÇOS DOS CONTRATOS =============
-export const ESCROW_FACTORY_ADDRESS = 'kQCQkWNWU91_i2W3zwxheZn5ya_gg1Nv7J5lZeVxCOtLNs8V';
+export const ESCROW_FACTORY_ADDRESS = 'EQDu_xcpGtFeApo5bl9y5O9-tPXN1EJo7kkIlSczirLBljE4';
 
 // ============= TIPOS E FUNÇÕES DO TACT (COPIADOS) =============
 export type CreateEscrow = {
