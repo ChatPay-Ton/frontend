@@ -4,7 +4,7 @@ import { TonClient, Address } from '@ton/ton';
 export function useTonBalance(address: string | null) {
   const [balance, setBalance] = useState<number | null>(null);
 
-  const mainnet = 'https://toncenter.com/api/v2/jsonRPC';
+  // const mainnet = 'https://toncenter.com/api/v2/jsonRPC';
   const testnet = 'https://testnet.toncenter.com/api/v2/jsonRPC';
 
   useEffect(() => {

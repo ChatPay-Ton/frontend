@@ -204,7 +204,6 @@ const SearchScreen: React.FC = () => {
                 key={provider.id}
                 provider={provider}
                 onViewProfile={handleViewProfile}
-                onContract={handleContract}
               />
             ))}
           </div>

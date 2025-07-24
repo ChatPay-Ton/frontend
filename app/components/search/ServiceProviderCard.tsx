@@ -8,13 +8,11 @@ import Link from 'next/link';
 interface ServiceProviderCardProps {
   provider: ServiceProvider;
   onViewProfile: (provider: ServiceProvider) => void;
-  onContract?: (provider: ServiceProvider) => void;
 }
 
 const ServiceProviderCard: React.FC<ServiceProviderCardProps> = ({
   provider,
   onViewProfile,
-  onContract
 }) => {
   const {
     isConnected,
