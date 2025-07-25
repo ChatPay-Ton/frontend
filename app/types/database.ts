@@ -260,6 +260,8 @@ export interface ServiceContract {
   transaction_hash?: string;
   created_at: string;
   updated_at: string;
+  confirmed_by_client?: boolean;
+  confirmed_by_provider?: boolean;
 }
 
 export interface CreateServiceContract {

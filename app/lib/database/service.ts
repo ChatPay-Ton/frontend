@@ -599,7 +599,7 @@ export class ServiceContractService {
     try {
       const result = await getDb().execute({
         sql: `SELECT sc.id, c.name AS client, sp.name AS provider, sp.category AS provider_category,
-              sc.total_amount, sc.status, sc.transaction_hash, sc.created_at, sc.updated_at
+              sc.confirmed_by_client, sc.confirmed_by_provider, sc.total_amount, sc.status, sc.transaction_hash, sc.created_at, sc.updated_at
               FROM service_contracts AS sc
               INNER JOIN service_providers AS sp ON sp.id = sc.provider_id
               INNER JOIN clients AS c ON c.id = sc.client_id

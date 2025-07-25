@@ -172,7 +172,10 @@ const ContractCard: React.FC<ContractCardProps> = ({ contract, isProvider = fals
         <div className="flex space-x-2">
           <button
             onClick={confirmContract}
-            disabled={isConfirming}
+            disabled={isConfirming
+              // || (contract.status !== 'client_confirmed' && !isProvider)
+              || (isProvider && contract.confirmed_by_provider)
+              || (!isProvider && contract.confirmed_by_client)}
             className="btn-secondary text-sm text-white hover:text-navy-dark font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
           >
             {isConfirming && (
